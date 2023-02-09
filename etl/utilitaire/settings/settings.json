@@ -1,0 +1,10 @@
+{
+     "sqlite_db":
+     [
+          {
+               "name":"LOCAL SERVER",
+               "server":"LOCAL SERVER",
+               "database":"data/database/etats_financier.db"
+          }
+     ]
+}

@@ -3,20 +3,28 @@
 # MODULES
 import sqlite3
 
-try:
-     conn = sqlite3.connect('etats_financier.db')
-     cur = conn.cursor()
-     print("Base de données etats_financier crée correctement connectée à SQLite")
+def deploy_database(database = "database"):
+     """
+     Déploiement de la database 
+   
+     Paramètre : 
+          - database : Adresse où déployer la database
+     """
 
-     sql = "SELECT sqlite_version();"
-     cur.execute(sql)
-     res = cur.fetchall()
-     print("La version de SQLite est : ", res)
-     cur.close()
-     conn.close()
-     print("La connexion SQLite est fermée")
+     try:     
+          conn = sqlite3.connect(database = database)
+          cursor = conn.cursor()
+          print("--- BASE DE DONNEES ETATS_FINANCIER CREE CORRECTEMENT ET CONNECTEE A SQLITE ---")
 
-except sqlite3.Error as error:
-     print("Erreur lors de la connexion à SQLite : ", error)
+          sql = "SELECT sqlite_version();"
+          cursor.execute(sql)
+          res = cursor.fetchall()
+          print("--- VERSION DE SQLITE : ", res, " ---")
+          
+          cursor.close()
+          conn.close()
+          print("--- CONNEXION SQLITE FERMEE ---")
 
+     except sqlite3.Error as error:
+          print("--- ERREUR LORS DE LA CONNEXION A SQLITE : ", error) 
 
