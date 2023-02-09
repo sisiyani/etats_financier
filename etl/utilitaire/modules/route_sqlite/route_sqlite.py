@@ -19,7 +19,7 @@ def deploy_database(database = "database"):
           sql = "SELECT sqlite_version();"
           cursor.execute(sql)
           res = cursor.fetchall()
-          print("--- VERSION DE SQLITE : ", res, " ---")
+          print("--- VERSION DE SQLITE : ", res)
           
           cursor.close()
           conn.close()
