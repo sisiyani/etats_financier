@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 # MODULES
 import json
@@ -22,5 +22,5 @@ def read_settings(path_in, dict, elem):
      for param in L_ret:
           if param["name"] == elem:
                param_config = param.copy()
-     logging.info("Lecture param config " + path_in ".")
+     logging.info("Lecture param config " + path_in + ".")
      return param_config 
