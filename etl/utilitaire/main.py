@@ -4,7 +4,7 @@
 # MODULES
 import argparse
 
-from modules.route_sqlite import route_sqlite
+from modules import route_sqlite
 from utils import utils
 
 # COMMANDES
