@@ -6,6 +6,7 @@ import argparse
 
 from modules import route_sqlite
 from utils import utils
+from os import listdir
 
 # COMMANDES
 def __main__(args):
@@ -46,26 +47,27 @@ def create_csv():
      print(" ")
     
      # Aller dans tous les dossiers d'entrée et stockez une version csv propre dans to_csv
-     allFolders = listidir('data/input')
+     allFolders = listdir('data/input')
 
      for folderName in allFolders:
-          print("--- ENTREE DANS LA BOUCLE ---")
-          folderPath = 'data/input/{}'.format(folderName)
-          allFiles = listdir(folderPath)
+          if folderName != '.gitignore':
+               print("--- ENTREE DANS LA BOUCLE ---")
+               folderPath = 'data/input/{}'.format(folderName)
+               allFiles = listdir(folderPath)
           
-          for inputFileName in allFiles:
-               inputFilePath = folderPath + '/' + inputFileName
-               outputFilePath = 'data/to_csv/' + inputFileName.split('.')[0] + '.csv'
+               for inputFileName in allFiles:
+                    inputFilePath = folderPath + '/' + inputFileName
+                    outputFilePath = 'data/to_csv/' + inputFileName.split('.')[0] + '.csv'
           
-          if inputFileName == 'demo.csv' or inputFileName == 'demo.xlsx':
-               print("-- FICHIER DE DEMO --")
-          elif inputFileName.split('.')[-1].lower()=='xlsx':
-               utils.convertXLSXtoCSV(inputFilePath, outputFilePath)
-               print('-- FICHIER CONVERTI EXCEL ET AJOUTE: {}'.format(inputFileName))
-          elif inputFileName.split('.')[-1].lower()=='csv':
-               df = pd.read_csv(inputFilePath, sep = ';', encoding = 'latin-1')
-               df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
-               print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
+               if inputFileName == 'demo.csv' or inputFileName == 'demo.xlsx' or inputFileName == '.gitignore':
+                    print("-- FICHIER DE DEMO --")
+               elif inputFileName.split('.')[-1].lower()=='xlsx':
+                    utils.convertXLSXtoCSV(inputFilePath, outputFilePath)
+                    print('-- FICHIER CONVERTI EXCEL ET AJOUTE: {}'.format(inputFileName))
+               elif inputFileName.split('.')[-1].lower()=='csv':
+                    df = pd.read_csv(inputFilePath, sep = ';', encoding = 'latin-1')
+                    df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
+                    print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
      return
 
 
