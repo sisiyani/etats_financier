@@ -2,6 +2,7 @@
 
 # MODULES
 import sqlite3
+import csv
 
 def deploy_database(database = "database"):
      """
@@ -27,4 +28,6 @@ def deploy_database(database = "database"):
 
      except sqlite3.Error as error:
           print("--- ERREUR LORS DE LA CONNEXION A SQLITE : ", error) 
+
+
 

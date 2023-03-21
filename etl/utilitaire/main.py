@@ -3,19 +3,21 @@
 
 # MODULES
 import argparse
+import pandas as pd
 
-from modules import route_sqlite
+from modules import route_sqlite, route_datacleaning
 from utils import utils
 from os import listdir
+
 
 # COMMANDES
 def __main__(args):
      if args.commande == "init_database":
           init_db()
      elif args.commande == "create_csv":
-          create_csv()
+          create_clean_csv()
      elif args.commande == "load_to_db":
-          loadCsvToDb
+          loadCsvToDb()
      elif args.commande == "all":
           all_functions()
      elif args.commande == "test":
@@ -40,58 +42,40 @@ def init_db():
      return
 
 
-def create_csv():
-     print("##################")
-     print("### CREATE_CSV ###")
-     print("##################")
-     print(" ")
-    
-     # Aller dans tous les dossiers d'entrée et stockez une version csv propre dans to_csv
-     allFolders = listdir('data/input')
-
-     for folderName in allFolders:
-          if folderName != '.gitignore':
-               print("--- ENTREE DANS LA BOUCLE ---")
-               folderPath = 'data/input/{}'.format(folderName)
-               allFiles = listdir(folderPath)
-          
-               for inputFileName in allFiles:
-                    inputFilePath = folderPath + '/' + inputFileName
-                    outputFilePath = 'data/to_csv/' + inputFileName.split('.')[0] + '.csv'
-          
-               if inputFileName == 'demo.csv' or inputFileName == 'demo.xlsx' or inputFileName == '.gitignore':
-                    print("-- FICHIER DE DEMO --")
-               elif inputFileName.split('.')[-1].lower()=='xlsx':
-                    utils.convertXLSXtoCSV(inputFilePath, outputFilePath)
-                    print('-- FICHIER CONVERTI EXCEL ET AJOUTE: {}'.format(inputFileName))
-               elif inputFileName.split('.')[-1].lower()=='csv':
-                    df = pd.read_csv(inputFilePath, sep = ';', encoding = 'latin-1')
-                    df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
-                    print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
+def create_clean_csv():
+     route_datacleaning.create_csv("data/input", "data/to_csv")
+     route_datacleaning.cleanData("data/to_csv")
+     
      return
+
 
 
 def loadCsvToDb():
-     dbname = utils.read_settings('settings/settings.json', 'db', 'name')
-     allCsv = listdir('data/to_csv')
-     conn = connDb(dbname)
-
-     for inputCsvFilePath in allCsv:
-          importSrcData(
-               utils.cleanSrcData(
-                    utils.csvReader('data/to_csv' + inputCsvFilePath)),
-                    inputCsvFilePath.split('/')[-1].split('.')[0],
-                    conn,
-                    dbname)
-          print('-- FICHIER AJOUTE A LA BASE DE DONNEES: {}'.format(inputCsvFilePath))
+     dbname = utils.read_settings('settings/settings.json', 'sqlite_db', 'name')
+     print("dbname :", dbname)
+     #allCsv = listdir('data/to_csv')
+     #print("allCsv :", allCsv)
+     #conn = connDb(dbname)
+     #print("conn :", conn)
      
-     return
+     print(" ")
+     #for inputCsvFilePath in allCsv:
+          #print("inputCsvFilePath :", inputCsvFilePath)
+          #importSrcData(
+          #     utils.cleanSrcData(
+          #          utils.csvReader('data/to_csv' + inputCsvFilePath)),
+          #          inputCsvFilePath.split('/')[-1].split('.')[0],
+          #          conn,
+          #          dbname)
+          #print('-- FICHIER AJOUTE A LA BASE DE DONNEES: {}'.format(inputCsvFilePath))
+     
+     #return
 
  
 
 def all_functions():
      init_db()
-     create_csv()
+     create_clean_csv()
      loadCsvToDb()
      return
 

@@ -41,7 +41,8 @@ def checkIfPathExists(file):
      """
      if os.path.exists(file):
           os.remove(file)
-          print("Ancier fichier écrasé")
+          print("Ancier fichier", file, "écrasé")
+
 
 
 
@@ -71,16 +72,16 @@ def cleanTxt(text):
      """
 
      try:
-          text = unicode(text.lower(), 'utf-8')
+          text = unidecode(text.lower(), 'utf-8')
      except (TypeError, NameError):
                pass
 
-     text = unicode(text.lower())
+     text = unidecode(text.lower())
      text = text.encode('ascii', 'ignore')
      text = text.decode('utf-8')
 
-     text = re.sub('[] +', '_', text)
-     text = re.sub('[^0-9a-zA-Z_-]', '',text) 
+     text = re.sub('\[] +', '_', text)
+     text = re.sub('\[^0-9a-zA-Z_-]', '',text) 
      return str(text)
 
 
