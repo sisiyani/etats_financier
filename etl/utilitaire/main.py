@@ -17,7 +17,7 @@ def __main__(args):
      elif args.commande == "create_csv":
           create_clean_csv()
      elif args.commande == "load_to_db":
-          loadCsvToDb()
+          create_table_and_insert_into()
      elif args.commande == "all":
           all_functions()
      elif args.commande == "test":
@@ -47,6 +47,18 @@ def create_clean_csv():
      route_datacleaning.cleanData("data/to_csv")
      
      return
+
+
+def create_table_and_insert_into(): 
+      
+     #liste = ['data\\to_csv\\2021_Execution_DG_FIR_v2_clean.csv']
+     #print("liste :", liste)
+
+     db_path = "data\\database\\etats_financier.db"
+     print("db_path :", db_path)
+
+     route_sqlite.create_table_insert_csv_to_sqlite("data/to_csv", db_path)
+
 
 
 
