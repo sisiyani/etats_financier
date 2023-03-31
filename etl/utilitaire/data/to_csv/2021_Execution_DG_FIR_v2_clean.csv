@@ -1,4 +1,4 @@
-exercice;libelle etablissement;sg1;libelle destination de rang 1;code destination rang 2;libelle destination de rang 2;code destination rang 3;libelle destination de rang 3;libelle enveloppe;ae ouvertes;cp ouverts;ej valides;decaissements cp
+EXERCICE;LIBELLE_ETABLISSEMENT;SG1;LIBELLE_DESTINATION_DE_RANG_1;CODE_DESTINATION_RANG_2;LIBELLE_DESTINATION_DE_RANG_2;CODE_DESTINATION_RANG_3;LIBELLE_DESTINATION_DE_RANG_3;LIBELLE_ENVELOPPE;AE_OUVERTES;CP_OUVERTS;EJ_VALIDES;DECAISSEMENTS_CP
 2021;ARS Auvergne RhAlpes;DG;Autres dépenses pers;BP3-1-COMI;Contribution du CA;;;Personnel;479233.0;479233.0;514164.01;514164.01
 2021;ARS Auvergne RhAlpes;DG;Autres dépenses pers;BP3-2-OBLI;Contrib obligatoires;;;Personnel;677895.0;677895.0;561394.96;561394.96
 2021;ARS Auvergne RhAlpes;DG;Autres dépenses pers;BP3-3-FORM;Formation personnel;;;Fonctionnement;358547.2;405820.2;357474.54;402194.78

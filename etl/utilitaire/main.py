@@ -4,6 +4,7 @@
 # MODULES
 import argparse
 import pandas as pd
+import sqlite3
 
 from modules import route_sqlite, route_datacleaning
 from utils import utils
@@ -54,12 +55,15 @@ def create_table_and_insert_into():
      #liste = ['data\\to_csv\\2021_Execution_DG_FIR_v2_clean.csv']
      #print("liste :", liste)
 
-     db_path = "data\\database\\etats_financier.db"
+     db_path = sqlite3.connect("data/database/etats_financier.db")
      print("db_path :", db_path)
 
-     route_sqlite.create_table_insert_csv_to_sqlite("data/to_csv", db_path)
+     fichier = "data/to_csv/2021_Execution_DG_FIR_v2_clean.csv"
 
 
+     route_sqlite.creer_table_csv(fichier, db_path)
+
+     db_path.close()
 
 
 def loadCsvToDb():

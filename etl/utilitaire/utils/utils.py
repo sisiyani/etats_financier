@@ -76,9 +76,10 @@ def cleanTxt(text):
      except (TypeError, NameError):
                pass
 
-     text = unidecode(text.lower())
+     text = unidecode(text.upper())
      text = text.encode('ascii', 'ignore')
      text = text.decode('utf-8')
+     text = text.replace(" ","_")
 
      text = re.sub('\[] +', '_', text)
      text = re.sub('\[^0-9a-zA-Z_-]', '',text) 

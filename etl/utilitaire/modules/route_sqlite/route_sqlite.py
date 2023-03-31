@@ -3,6 +3,7 @@
 # MODULES
 import sqlite3
 import csv
+import os
 
 from os import listdir
 
@@ -32,46 +33,68 @@ def deploy_database(database = "database"):
           print("--- ERREUR LORS DE LA CONNEXION A SQLITE : ", error) 
 
 
-def create_table_insert_csv_to_sqlite(path, db_path):
+
+
+
+def compter_valeurs(var):
+    """
+    Compte le nombre de valeurs dans une variable.
+    :param var: La variable à compter.
+    :return: Le nombre de valeurs dans la variable.
+    """
+    if isinstance(var, (list, tuple, set)):
+        return len(var)
+    elif isinstance(var, dict):
+        return len(var.values())
+    elif isinstance(var, str):
+        return len(var.split())
+    else:
+        return 1
+
+
+def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
      """
-     Insert les données issues des fichiers csv au sein de la bdd sqlite.
-
-     Paramètres : 
-     - csv_file_path : Fichier csv à insérer
-     - table_name : Nom de la table à créer
-     - database : Nom de la base de données où insérer les données
+     Crée une table dans une base de données SQLite à partir d'un fichier CSV
+     et y insère les données du fichier.
+     Le nom de la table est le nom du fichier CSV sans l'extension.
+     :param chemin_fichier_csv: Le chemin complet du fichier CSV
+     :param connexion_base_donnees: La connexion à la base de données SQLite
      """
-     # Connect to the SQLite database
-     conn = sqlite3.connect(db_path)
-     #cursor = conn.cursor()
+     # Récupère le nom du fichier CSV sans l'extension pour le nom de la table
+     nom_fichier_csv = os.path.splitext(os.path.basename(chemin_fichier_csv))[0]
+     nom_table = 'table_' + nom_fichier_csv.replace(' ', '_')
+     print('nom table : ', nom_table)
 
-     file_list = []
+     # Crée un curseur pour la base de données
+     curseur = connexion_base_donnees.cursor()
 
-     files = listdir(path)
-     for name in files:
-          if name[-9:] == 'clean.csv':
-               file_list.append(path + '/' + name)
+     # Ouvre le fichier CSV
+     with open(chemin_fichier_csv, 'r') as fichier_csv:
+          # Lit le contenu du fichier CSV avec la bibliothèque csv
+          contenu_csv = csv.reader(fichier_csv, delimiter = ';')
+          print('contenu_csv :', contenu_csv)
+          #for ligne in contenu_csv:
+               #print('ligne contenu_csv :', ligne)
 
-     # Pour chaque fichier CSV dans la liste
-     for file in file_list:
-          # Récupère le nom de la table à partir du nom du fichier CSV
-          file_name1 = file.split('.')[0]
-          print("file_name1 :", file_name1)
-          file_name2 = file_name1.split('/')[-1]
-          print("file_name2 :", file_name2)
-          table_name = 'table_' + file_name2
+          # Récupère la première ligne du fichier CSV comme noms de colonnes
+          colonnes = next(contenu_csv)
+          print('colonnes :', colonnes)        
+          nom_colonnes = ", ".join(colonnes)
+          print('nom_colonnes :', nom_colonnes)
+          nom_colonnes = nom_colonnes.replace(";", ",")
+          #print('nom_colonnes :', nom_colonnes)
+          curseur.execute(f"CREATE TABLE IF NOT EXISTS {nom_table} ({nom_colonnes})")
 
-          # Création d'une nouvelle table pour le fichier CSV
-          with open(file, 'r') as f:
-               reader = csv.reader(f)
-               headers = next(reader)
-               columns = ', '.join([f'{h} TEXT' for h in headers])
-               conn.execute(f"""CREATE TABLE {table_name} ({columns})""")
+          # Insère les données dans la table
+          valeurs = []
+          print('contenu_csv :', contenu_csv)
+          for ligne in contenu_csv:
+               print('ligne :', ligne)
+               valeurs.append(tuple(ligne))
+          print('compter_valeurs :', compter_valeurs(valeurs[1]))
+          print('valeur : ', valeurs[1])
 
-          # Import les données au sein d'une nouvelle table de la base de données
-          with open(file, 'r') as f:
-               reader = csv.reader(f)
-               next.executemany(f'INSERT INTO {table_name} VALUES ({",".join("?"*len(headers))})', reader)
+          curseur.executemany(f"INSERT INTO {nom_table} ({nom_colonnes}) VALUES ({', '.join(['?'] * len(colonnes))})", valeurs)
 
-     conn.commit()
-     conn.close()
+     # Enregistre les modifications dans la base de données
+     connexion_base_donnees.commit()
