@@ -79,7 +79,13 @@ def cleanTxt(text):
      text = unidecode(text.upper())
      text = text.encode('ascii', 'ignore')
      text = text.decode('utf-8')
+     text = text.replace(",","")
      text = text.replace(" ","_")
+     text = text.replace("-","_")
+     text = text.replace("'", "_")
+
+     text = text.replace("__", "_")
+     text = text.replace("___", "_")
 
      text = re.sub('\[] +', '_', text)
      text = re.sub('\[^0-9a-zA-Z_-]', '',text) 

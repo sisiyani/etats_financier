@@ -5,6 +5,7 @@
 import argparse
 import pandas as pd
 import sqlite3
+import os
 
 from modules import route_sqlite, route_datacleaning
 from utils import utils
@@ -45,7 +46,7 @@ def init_db():
 
 def create_clean_csv():
      route_datacleaning.create_csv("data/input", "data/to_csv")
-     route_datacleaning.cleanData("data/to_csv")
+     route_datacleaning.cleanData("data/to_csv", "data/final_input")
      
      return
 
@@ -58,10 +59,18 @@ def create_table_and_insert_into():
      db_path = sqlite3.connect("data/database/etats_financier.db")
      print("db_path :", db_path)
 
-     fichier = "data/to_csv/2021_Execution_DG_FIR_v2_clean.csv"
+     files_path = "data/final_input"
 
+     files = []
 
-     route_sqlite.creer_table_csv(fichier, db_path)
+     for file in os.listdir(files_path):
+          #print('file : ', file)
+          files.append(files_path + '/' + file)
+
+     #print('files : ', files)
+
+     for file in files:
+          route_sqlite.creer_table_csv(file, db_path)
 
      db_path.close()
 

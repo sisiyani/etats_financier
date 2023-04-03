@@ -38,21 +38,41 @@ def create_csv(path_in, path_out):
                #print("inputFilePath :", inputFilePath)
                outputFilePath = path_out + '/' + inputFileName.split('.')[0] + '.csv'
                #print("outputFilePath :", outputFilePath)
+               utils.checkIfPathExists(outputFilePath)
 
                if inputFileName == 'demo.csv' or inputFileName == 'demo.xlsx' or inputFileName == '.gitignore':
                     print("-- FICHIER DE DEMO : ", inputFileName)
                elif inputFileName.split('.')[-1].lower()=='xlsx':
+                    print('outputFilePath :', outputFilePath)
                     utils.convertXLSXtoCSV(inputFilePath, outputFilePath)
                     print('-- FICHIER CONVERTI EN CSV ET AJOUTE: {}'.format(inputFileName))
                elif inputFileName.split('.')[-1].lower()=='csv':
                     df = pd.read_csv(inputFilePath, sep = ';', encoding = 'latin-1')
-                    df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
+                    print('outputFilePath :', outputFilePath)
+                    df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')     
                     print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
           print("---------------------------------------------")
           print(" ")
 
 
-def cleanData(path_in):
+def cleanTitle(filename):
+     """
+     Permet d'uniformiser le nom d'un fichier.
+
+     Paramètre :
+     - filename = Nom du fichier à uniformiser.
+     """
+     
+     chars_to_replace = [',', ' ', ';', '-', "'"]
+     
+     for c in chars_to_replace:
+          filename = filename.replace(c, '_')
+
+     return filename
+          
+
+
+def cleanData(path_in, path_out):
      """
      Permet de créer de nettoyer les fichiers csv en créant de nouveaux fichiers XXXX_clean.csv
 
@@ -65,31 +85,32 @@ def cleanData(path_in):
      print("##################")
      print(" ")
 
-     folderPath = path_in
-     allFiles = listdir(folderPath)
+     path_in = path_in
+     path_out = path_out
+     allFiles = listdir(path_in)
      print("allFiles : ", allFiles)
      print(" ")
 
      for File in allFiles:
-          if File[-10:] != '_clean.csv':
-               print("File to clean : ", File)
+          print("File to clean : ", File)
 
-               inputFilePath = folderPath + '/' + File
-               print('inputFilePath :', inputFilePath)
-               outputFilePath = folderPath + '/' + File.split('.')[0] + '_clean.csv'
-               print('outputFilePath :', outputFilePath)
+          inputFilePath = path_in + '/' + File
+          print('inputFilePath :', inputFilePath)
+          outputFilePath = path_out + '/' + File.split('.')[0] + '.csv'
+          outputFilePath = cleanTitle(outputFilePath)
+          print('outputFilePath :', outputFilePath)
 
-               utils.checkIfPathExists(outputFilePath)
+          utils.checkIfPathExists(outputFilePath)
 
-               data = pd.read_csv(inputFilePath, sep = ';', encoding = 'UTF-8')
-               #print('data :', data)
+          data = pd.read_csv(inputFilePath, sep = ';', encoding = 'UTF-8')
+          #print('data :', data)
 
-               df = pd.DataFrame(data)
-               #print('df before clean :', df)
+          df = pd.DataFrame(data)
+          #print('df before clean :', df)
 
-               df = utils.cleanSrcData(df)
-               print('df after clean :', df)
+          df = utils.cleanSrcData(df)
+          print('df after clean :', df)
 
-               df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
+          df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
 
           print(' ')
