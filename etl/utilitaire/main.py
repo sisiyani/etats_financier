@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # MODULES
 import argparse
 import pandas as pd
@@ -45,64 +44,49 @@ def init_db():
 
 
 def create_clean_csv():
-     route_datacleaning.create_csv("data/input", "data/to_csv")
-     route_datacleaning.cleanData("data/to_csv", "data/final_input")
+     # Récupération des paramètres nécessaires depuis le fichier settings.json
+     param_input = utils.read_settings("settings/settings.json", dict = "path_data", elem = "input")
+     param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
+     param_final_input = utils.read_settings("settings/settings.json", dict = "path_data", elem = "final_input")
+     
+     # Création des fichiers csv à partir des fichiers sources 
+     route_datacleaning.create_csv(param_input["path"], param_to_csv["path"])
+     # Uniformisation du titre et des données des fichiers csv
+     route_datacleaning.cleanData(param_to_csv["path"], param_final_input["path"])
      
      return
 
 
 def create_table_and_insert_into(): 
-      
-     #liste = ['data\\to_csv\\2021_Execution_DG_FIR_v2_clean.csv']
-     #print("liste :", liste)
-
-     db_path = sqlite3.connect("data/database/etats_financier.db")
-     print("db_path :", db_path)
-
-     files_path = "data/final_input"
-
+     # Récupération des paramètres nécessaires depuis le fichier settings.json
+     param_database = utils.read_settings("settings/settings.json", dict = "sqlite_db", elem = "LOCAL SERVER")
+     param_file = utils.read_settings("settings/settings.json", dict = "path_data", elem = "final_input")
+     
+     db_path = sqlite3.connect(param_database['database'])
+     
      files = []
 
+     # Liste les fichiers à insérer au sein de la bdd
+     files_path = param_file['path']
+
      for file in os.listdir(files_path):
-          #print('file : ', file)
-          files.append(files_path + '/' + file)
-
-     #print('files : ', files)
-
+          if file != '.gitignore':
+               print('file : ', file)
+               files.append(files_path + '/' + file)
+     
+     # Boucle créant les tables et introduisant les données au sein de la bdd
      for file in files:
           route_sqlite.creer_table_csv(file, db_path)
 
      db_path.close()
-
-
-def loadCsvToDb():
-     dbname = utils.read_settings('settings/settings.json', 'sqlite_db', 'name')
-     print("dbname :", dbname)
-     #allCsv = listdir('data/to_csv')
-     #print("allCsv :", allCsv)
-     #conn = connDb(dbname)
-     #print("conn :", conn)
-     
-     print(" ")
-     #for inputCsvFilePath in allCsv:
-          #print("inputCsvFilePath :", inputCsvFilePath)
-          #importSrcData(
-          #     utils.cleanSrcData(
-          #          utils.csvReader('data/to_csv' + inputCsvFilePath)),
-          #          inputCsvFilePath.split('/')[-1].split('.')[0],
-          #          conn,
-          #          dbname)
-          #print('-- FICHIER AJOUTE A LA BASE DE DONNEES: {}'.format(inputCsvFilePath))
-     
-     #return
-
  
 
 def all_functions():
      init_db()
      create_clean_csv()
-     loadCsvToDb()
+     create_table_and_insert_into()
      return
+
 
 # Initialisation du parsing
 parser = argparse.ArgumentParser()

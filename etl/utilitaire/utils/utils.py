@@ -99,3 +99,19 @@ def cleanSrcData(df):
 
      df.columns = [cleanTxt(i) for i in df.columns.values.tolist()]
      return df
+
+
+def compter_valeurs(var):
+     """
+     Compte le nombre de valeurs dans une variable.
+     :param var: La variable à compter.
+     :return: Le nombre de valeurs dans la variable.
+     """
+     if isinstance(var, (list, tuple, set)):
+          return len(var)
+     elif isinstance(var, dict):
+          return len(var.values())
+     elif isinstance(var, str):
+          return len(var.split())
+     else:
+          return 1

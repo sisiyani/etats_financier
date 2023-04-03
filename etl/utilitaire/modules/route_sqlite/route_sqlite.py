@@ -6,6 +6,7 @@ import csv
 import os
 
 from os import listdir
+from utils import *
 
 def deploy_database(database = "database"):
      """
@@ -31,25 +32,6 @@ def deploy_database(database = "database"):
 
      except sqlite3.Error as error:
           print("--- ERREUR LORS DE LA CONNEXION A SQLITE : ", error) 
-
-
-
-
-
-def compter_valeurs(var):
-    """
-    Compte le nombre de valeurs dans une variable.
-    :param var: La variable à compter.
-    :return: Le nombre de valeurs dans la variable.
-    """
-    if isinstance(var, (list, tuple, set)):
-        return len(var)
-    elif isinstance(var, dict):
-        return len(var.values())
-    elif isinstance(var, str):
-        return len(var.split())
-    else:
-        return 1
 
 
 def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
@@ -91,7 +73,7 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
           for ligne in contenu_csv:
                print('ligne :', ligne)
                valeurs.append(tuple(ligne))
-          print('compter_valeurs :', compter_valeurs(valeurs[1]))
+          print('compte_valeurs :', utils.compter_valeurs(valeurs[1]))
           print('valeur : ', valeurs[1])
 
           curseur.executemany(f"INSERT INTO {nom_table} ({nom_colonnes}) VALUES ({', '.join(['?'] * len(colonnes))})", valeurs)

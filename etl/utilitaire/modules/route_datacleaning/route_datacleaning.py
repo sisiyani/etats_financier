@@ -92,25 +92,26 @@ def cleanData(path_in, path_out):
      print(" ")
 
      for File in allFiles:
-          print("File to clean : ", File)
+          if File != ".gitignore":
+               print("File to clean : ", File)
 
-          inputFilePath = path_in + '/' + File
-          print('inputFilePath :', inputFilePath)
-          outputFilePath = path_out + '/' + File.split('.')[0] + '.csv'
-          outputFilePath = cleanTitle(outputFilePath)
-          print('outputFilePath :', outputFilePath)
+               inputFilePath = path_in + '/' + File
+               print('inputFilePath :', inputFilePath)
+               outputFilePath = path_out + '/' + File.split('.')[0] + '.csv'
+               outputFilePath = cleanTitle(outputFilePath)
+               print('outputFilePath :', outputFilePath)
 
-          utils.checkIfPathExists(outputFilePath)
+               utils.checkIfPathExists(outputFilePath)
 
-          data = pd.read_csv(inputFilePath, sep = ';', encoding = 'UTF-8')
-          #print('data :', data)
+               data = pd.read_csv(inputFilePath, sep = ';', encoding = 'UTF-8')
+               #print('data :', data)
 
-          df = pd.DataFrame(data)
-          #print('df before clean :', df)
+               df = pd.DataFrame(data)
+               #print('df before clean :', df)
 
-          df = utils.cleanSrcData(df)
-          print('df after clean :', df)
+               df = utils.cleanSrcData(df)
+               print('df after clean :', df)
 
-          df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
+               df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
 
-          print(' ')
+               print(' ')
