@@ -1,0 +1,4 @@
+*.xlsx
+*.pdf
+
+!demo.xlsx
