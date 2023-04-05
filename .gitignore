@@ -1,7 +1,9 @@
 *.csv
 *.db
 *.xlsx
+*.json
 
 !demo.db
 !demo.csv
 !demo.xlsx
+!settings_demo.json
