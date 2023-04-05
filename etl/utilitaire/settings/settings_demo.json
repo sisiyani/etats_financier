@@ -6,5 +6,27 @@
                "server":"LOCAL SERVER",
                "database":"data/database/etats_financier.db"
           }
+     ],
+
+
+     "db":
+     [
+          {
+               "name":"etats_financier.db"
+          }
+
+     ],
+
+     "path_data":
+     [
+          {
+               "name":"input",
+               "path":"data/input"
+          },
+
+          {
+               "name":"to_csv",
+               "path":"data/to_csv"
+          }
      ]
 }

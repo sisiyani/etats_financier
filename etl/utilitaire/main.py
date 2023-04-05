@@ -47,12 +47,11 @@ def create_clean_csv():
      # Récupération des paramètres nécessaires depuis le fichier settings.json
      param_input = utils.read_settings("settings/settings.json", dict = "path_data", elem = "input")
      param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
-     param_final_input = utils.read_settings("settings/settings.json", dict = "path_data", elem = "final_input")
      
      # Création des fichiers csv à partir des fichiers sources 
      route_datacleaning.create_csv(param_input["path"], param_to_csv["path"])
-     # Uniformisation du titre et des données des fichiers csv
-     route_datacleaning.cleanData(param_to_csv["path"], param_final_input["path"])
+     # Uniformisation des données des fichiers csv
+     route_datacleaning.cleanData(param_to_csv["path"])
      
      return
 
@@ -60,20 +59,23 @@ def create_clean_csv():
 def create_table_and_insert_into(): 
      # Récupération des paramètres nécessaires depuis le fichier settings.json
      param_database = utils.read_settings("settings/settings.json", dict = "sqlite_db", elem = "LOCAL SERVER")
-     param_file = utils.read_settings("settings/settings.json", dict = "path_data", elem = "final_input")
+     param_file = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
      
      db_path = sqlite3.connect(param_database['database'])
-     
-     files = []
 
      # Liste les fichiers à insérer au sein de la bdd
+     files = []
      files_path = param_file['path']
-
+    
      for file in os.listdir(files_path):
-          if file != '.gitignore':
-               print('file : ', file)
+          if file.split('/')[-1] != "demo.csv":
+               print('file :', file)
                files.append(files_path + '/' + file)
      
+     print(" ")
+     print('files :', files)
+     print(" ")
+
      # Boucle créant les tables et introduisant les données au sein de la bdd
      for file in files:
           route_sqlite.creer_table_csv(file, db_path)

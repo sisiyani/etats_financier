@@ -66,6 +66,24 @@ def convertXLSXtoCSV(inputExcelFilePath, outputCsvFilePath):
           return str(err)
 
 
+def cleanTitle(filename):
+     """
+     Permet d'uniformiser le nom d'un fichier.
+
+     Paramètre :
+     - filename : Nom du fichier à uniformiser.
+     """
+     
+     filename = unidecode(filename.upper(), 'utf-8')
+
+     chars_to_replace = [',', ' ', ';', '-', ","]
+
+     for c in chars_to_replace:
+          filename = filename.replace(c, '_')
+ 
+     return filename
+
+
 def cleanTxt(text):
      """
 
@@ -80,8 +98,11 @@ def cleanTxt(text):
      text = text.encode('ascii', 'ignore')
      text = text.decode('utf-8')
      text = text.replace(",","")
-     text = text.replace(" ","_")
+     text = text.replace(" - ", "_")
+     text = text.replace(" -", "_")
+     text = text.replace("- ","_")
      text = text.replace("-","_")
+     text = text.replace(" ", "_")
      text = text.replace("'", "_")
 
      text = text.replace("__", "_")

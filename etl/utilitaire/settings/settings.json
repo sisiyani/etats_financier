@@ -20,11 +20,6 @@
      "path_data":
      [
           {
-               "name":"final_input",
-               "path":"data/final_input"
-          },
-
-          {
                "name":"input",
                "path":"data/input"
           },

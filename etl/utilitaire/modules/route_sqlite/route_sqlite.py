@@ -44,7 +44,7 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
      """
      # Récupère le nom du fichier CSV sans l'extension pour le nom de la table
      nom_fichier_csv = os.path.splitext(os.path.basename(chemin_fichier_csv))[0]
-     nom_table = 'table_' + nom_fichier_csv.replace(' ', '_')
+     nom_table = nom_fichier_csv.replace(' ', '_')
      print('nom table : ', nom_table)
 
      # Crée un curseur pour la base de données
@@ -54,29 +54,28 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
      with open(chemin_fichier_csv, 'r') as fichier_csv:
           # Lit le contenu du fichier CSV avec la bibliothèque csv
           contenu_csv = csv.reader(fichier_csv, delimiter = ';')
-          print('contenu_csv :', contenu_csv)
+          #print('contenu_csv :', contenu_csv)
           #for ligne in contenu_csv:
                #print('ligne contenu_csv :', ligne)
 
           # Récupère la première ligne du fichier CSV comme noms de colonnes
           colonnes = next(contenu_csv)
-          print('colonnes :', colonnes)        
+          #print('colonnes :', colonnes)        
           nom_colonnes = ", ".join(colonnes)
+          #nom_colonnes = nom_colonnes.replace(";", ",")
           print('nom_colonnes :', nom_colonnes)
-          nom_colonnes = nom_colonnes.replace(";", ",")
-          #print('nom_colonnes :', nom_colonnes)
+          print(" ")
           curseur.execute(f"CREATE TABLE IF NOT EXISTS {nom_table} ({nom_colonnes})")
 
           # Insère les données dans la table
           valeurs = []
-          print('contenu_csv :', contenu_csv)
           for ligne in contenu_csv:
                print('ligne :', ligne)
                valeurs.append(tuple(ligne))
           print('compte_valeurs :', utils.compter_valeurs(valeurs[1]))
-          print('valeur : ', valeurs[1])
 
           curseur.executemany(f"INSERT INTO {nom_table} ({nom_colonnes}) VALUES ({', '.join(['?'] * len(colonnes))})", valeurs)
+          print(" ")
 
      # Enregistre les modifications dans la base de données
      connexion_base_donnees.commit()
