@@ -1,5 +1,11 @@
 /etl/utilitaire/data/input/FMIS/
+/etl/utilitaire/data/input/DFAS/
+/etl/utilitaire/data/input/DGOS/
+/etl/utilitaire/data/input/DSS/
+/etl/utilitaire/data/input/FIR/
 /etl/utilitaire/data/to_csv/
+/etl/utilitaire/data/output/
+/etl/utilitaire/data/final_input/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
