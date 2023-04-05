@@ -1,2 +1,7 @@
 *.csv
 *.db
+*.xlsx
+
+!demo.db
+!demo.csv
+!demo.xlsx
