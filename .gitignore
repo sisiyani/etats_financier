@@ -1,4 +1,5 @@
 /etl/utilitaire/data/input/FMIS/
+/etl/utilitaire/data/to_csv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
