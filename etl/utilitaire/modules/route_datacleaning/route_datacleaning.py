@@ -4,6 +4,9 @@
 import pandas as pd
 import sqlite3
 import os
+import csv
+import unicodedata
+import chardet
 
 from utils import *
 from os import listdir
@@ -101,3 +104,6 @@ def cleanData(path):
           df.to_csv(FilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
 
           print(' ')
+
+
+

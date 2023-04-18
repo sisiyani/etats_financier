@@ -81,7 +81,7 @@ def create_table_and_insert_into():
           route_sqlite.creer_table_csv(file, db_path)
 
      db_path.close()
- 
+
 
 def all_functions():
      init_db()
