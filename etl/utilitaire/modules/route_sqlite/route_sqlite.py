@@ -97,7 +97,7 @@ def execute_sql_queries(query_list, db_file, output_folder):
 
           # Enregistrement du résultat sous forme de fichier CSV dans le dossier spécifié en argument
           output_file = f"{query_name}.csv"
-          df.to_csv(f"{output_folder}/{output_file}", index = False)
+          df.to_csv(f"{output_folder}/{output_file}", sep = ";", index = False, encoding = 'utf-8')
           print(f"Fichier {output_file} crée correctement et enregistré au sein de {output_folder}")
 
      # Fermeture de la connexion à la base de données

@@ -6,7 +6,7 @@ import pandas as pd
 import sqlite3
 import os
 
-from modules import route_sqlite, route_datacleaning
+from modules import route_sqlite, route_datacleaning, route_vm
 from modules.route_sqlite import query_sqlite
 from utils import utils
 from os import listdir
@@ -90,11 +90,11 @@ def execute_sql():
      query_list = query_sqlite.get_query()
      #print("query list : ", query_list)
 
-     db_file = "data/database/etats_financier.db"
-     output_folder = "data/output"
+     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+     param_output_folder = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output")
 
-     route_sqlite.execute_sql_queries(query_list, db_file, output_folder)
- 
+     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_output_folder["path"])
+
 
 def all_functions():
      init_db()

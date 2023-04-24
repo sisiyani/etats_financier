@@ -12,7 +12,8 @@
      "db":
      [
           {
-               "name":"etats_financier.db"
+               "name":"etats_financier.db",
+               "path":"data/database/etats_financier.db"
           }
 
      ],
@@ -27,6 +28,11 @@
           {
                "name":"to_csv",
                "path":"data/to_csv"
+          },
+
+          {
+               "name":"output",
+               "path":"data/output"
           }
      ]
 }
