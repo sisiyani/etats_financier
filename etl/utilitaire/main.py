@@ -7,6 +7,7 @@ import sqlite3
 import os
 
 from modules import route_sqlite, route_datacleaning
+from modules.route_sqlite import query_sqlite
 from utils import utils
 from os import listdir
 
@@ -19,6 +20,8 @@ def __main__(args):
           create_clean_csv()
      elif args.commande == "load_to_db":
           create_table_and_insert_into()
+     elif args.commande == "execute_sql":
+          execute_sql()
      elif args.commande == "all":
           all_functions()
      elif args.commande == "test":
@@ -83,10 +86,21 @@ def create_table_and_insert_into():
      db_path.close()
 
 
+def execute_sql():
+     query_list = query_sqlite.get_query()
+     #print("query list : ", query_list)
+
+     db_file = "data/database/etats_financier.db"
+     output_folder = "data/output"
+
+     route_sqlite.execute_sql_queries(query_list, db_file, output_folder)
+ 
+
 def all_functions():
      init_db()
      create_clean_csv()
      create_table_and_insert_into()
+     execute_sql()
      return
 
 

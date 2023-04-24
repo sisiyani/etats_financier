@@ -4,9 +4,11 @@
 import sqlite3
 import csv
 import os
+import pandas as pd
 
 from os import listdir
 from utils import *
+from .query_sqlite import *
 
 def deploy_database(database = "database"):
      """
@@ -80,3 +82,23 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
 
      # Enregistre les modifications dans la base de données
      connexion_base_donnees.commit()
+
+
+def execute_sql_queries(query_list, db_file, output_folder):
+     # Connexion à la bdd
+     conn = sqlite3.connect(db_file)
+
+     # Pour chaque requête SQL dans la liste
+     for i, (query_name, query) in enumerate(query_list):
+          print(f"Exécution de la requête {i+1}/{len(query_list)} : {query_name}")
+
+          # Exécution de la requête SQL
+          df = pd.read_sql(query, conn)
+
+          # Enregistrement du résultat sous forme de fichier CSV dans le dossier spécifié en argument
+          output_file = f"{query_name}.csv"
+          df.to_csv(f"{output_folder}/{output_file}", index = False)
+          print(f"Fichier {output_file} crée correctement et enregistré au sein de {output_folder}")
+
+     # Fermeture de la connexion à la base de données
+     conn.close()
