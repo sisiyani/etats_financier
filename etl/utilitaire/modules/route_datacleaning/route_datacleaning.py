@@ -11,11 +11,13 @@ import chardet
 from utils import *
 from os import listdir
 
+
+
 def create_csv(path_in, path_out):
      """
      Permet de convertir les fichiers xlsx en fichier csv.
 
-     Paramètres : 
+     Paramètres :
      - path_in : chemin du dossier où se trouvent les fichiers à convertir
      - path_out : chemin du dossier où enregistrer les fichiers convertis
      """
@@ -24,16 +26,16 @@ def create_csv(path_in, path_out):
      print("##################")
      print(" ")
 
-     # Aller dans tous les dossiers d'entrée et stockez une version csv propre dans to_csv
-     allFolders = listdir(path_in)
-     print("allFolders :",allFolders)
+     # Aller dans tous les dossiers d'entrée et stocker une version csv propre dans to_csv
+     allFolders = os.listdir(path_in)
+     print("allFolders :", allFolders)
 
      for folderName in allFolders:
           print("---------------------------------------------")
           print("--- DOSSIER : ", folderName)
           folderPath = 'data/input/{}'.format(folderName)
           #print("folderPath :", folderPath)
-          allFiles = listdir(folderPath)
+          allFiles = os.listdir(folderPath)
           allFiles = [f for f in allFiles if f not in ["demo.csv", "demo.xlsx", ".gitignore"]]
           #print("allFiles :", allFiles)
 
@@ -42,20 +44,24 @@ def create_csv(path_in, path_out):
                print("inputFilePath :", inputFilePath)
                newName = folderName + '_' + inputFileName.split('.')[0]
                newName = utils.cleanTitle(newName)
+
+               # read file and uniformize data
+               if inputFileName.split('.')[-1].lower() == 'xlsx':
+                    df = pd.read_excel(inputFilePath, header=0)
+               elif inputFileName.split('.')[-1].lower() == 'csv':
+                    df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
+
+               df.columns = [col.upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U").replace("'", " ").replace("–", "-") for col in df.columns]
+               df = df.applymap(lambda x: str(x).upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U").replace("'", " ").replace("–", "-"))
+
                outputFilePath = path_out + '/' + newName + '.csv'
                print("outputFilePath :", outputFilePath)
                utils.checkIfPathExists(outputFilePath)
 
-               if inputFileName.split('.')[-1].lower()=='xlsx':
-                    print('outputFilePath :', outputFilePath)
-                    utils.convertXLSXtoCSV(inputFilePath, outputFilePath)
-                    print('-- FICHIER CONVERTI EN CSV ET AJOUTE: {}'.format(inputFileName))
-               elif inputFileName.split('.')[-1].lower()=='csv':
-                    df = pd.read_csv(inputFilePath, sep = ';', encoding = 'latin-1')
-                    print('outputFilePath :', outputFilePath)
-                    df.to_csv(outputFilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')     
-                    print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
+               # write file
+               df.to_csv(outputFilePath, index=None, header=True, sep=';', encoding='utf-8-sig')
 
+               print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
                print(" ")
 
           print("---------------------------------------------")

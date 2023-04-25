@@ -55,10 +55,10 @@ def convertXLSXtoCSV(inputExcelFilePath, outputCsvFilePath):
      """
 
      try:
-          excelFile = pd.read_excel(inputExcelFilePath, header = 0)
+          excelFile = pd.read_excel(inputExcelFilePath, header = 0, engine = 'openpyxl')
           checkIfPathExists(outputCsvFilePath)
 
-          excelFile.to_csv(outputCsvFilePath, index = None, header = True, sep = ";", encoding = 'UTF-8')
+          excelFile.to_csv(outputCsvFilePath, index = None, header = True, sep = ";", encoding = 'utf-8-sig')
           return outputCsvFilePath
      
      except ValueError as err:
@@ -136,3 +136,29 @@ def compter_valeurs(var):
           return len(var.split())
      else:
           return 1
+
+
+def uniformize_csv_files(directory):
+    """
+    Uniformise les données de tous les fichiers CSV d'un dossier (sauf demo.csv)
+    en assurant une bonne gestion des accents et des caractères spéciaux.
+
+    :param directory: Le chemin d'accès au dossier contenant les fichiers CSV à uniformiser
+    """
+    # Liste tous les fichiers CSV du dossier
+    csv_files = [f for f in os.listdir(directory) if f.endswith('.csv') and f != 'demo.csv']
+
+    # Uniformise chaque fichier CSV
+    for csv_file in csv_files:
+        csv_file_path = os.path.join(directory, csv_file)
+
+        # Charge le fichier CSV en utilisant l'encodage UTF-8
+        csv_data = pd.read_csv(csv_file_path, sep=';', encoding='utf-8')
+
+        # Uniformise les données en enlevant les espaces en début et fin de chaîne et en convertissant en majuscules
+        csv_data = csv_data.applymap(lambda x: x.strip().upper() if isinstance(x, str) else x)
+
+        # Écrit le fichier CSV uniformisé en utilisant l'encodage UTF-8 et le séparateur ';'
+        csv_data.to_csv(csv_file_path, sep=';', index=False, encoding='utf-8-sig')
+
+        print('csv_file clean :', csv_file)

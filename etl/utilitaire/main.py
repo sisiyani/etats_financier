@@ -6,7 +6,7 @@ import pandas as pd
 import sqlite3
 import os
 
-from modules import route_sqlite, route_datacleaning, route_vm
+from modules import route_sqlite, route_datacleaning
 from modules.route_sqlite import query_sqlite
 from utils import utils
 from os import listdir
