@@ -51,8 +51,8 @@ def create_csv(path_in, path_out):
                elif inputFileName.split('.')[-1].lower() == 'csv':
                     df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
 
-               df.columns = [col.upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U") for col in df.columns]
-               df = df.applymap(lambda x: str(x).upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U"))
+               #df.columns = [col.upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U") for col in df.columns]
+               #df = df.applymap(lambda x: str(x).upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U"))
 
                outputFilePath = path_out + '/' + newName + '.csv'
                print("outputFilePath :", outputFilePath)
