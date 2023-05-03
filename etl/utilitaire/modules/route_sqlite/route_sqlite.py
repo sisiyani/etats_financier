@@ -15,9 +15,8 @@ def deploy_database(database = "database"):
      Déploiement de la database 
    
      Paramètre : 
-          - database : Adresse où déployer la database
+        - database : Adresse où déployer la database
      """
-
      try:     
           conn = sqlite3.connect(database = database)
           cursor = conn.cursor()
@@ -41,8 +40,10 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
      Crée une table dans une base de données SQLite à partir d'un fichier CSV
      et y insère les données du fichier.
      Le nom de la table est le nom du fichier CSV sans l'extension.
-     :param chemin_fichier_csv: Le chemin complet du fichier CSV
-     :param connexion_base_donnees: La connexion à la base de données SQLite
+     
+     Paramètres :
+        - param chemin_fichier_csv: Le chemin complet du fichier CSV
+        - param connexion_base_donnees: La connexion à la base de données SQLite
      """
      # Récupère le nom du fichier CSV sans l'extension pour le nom de la table
      nom_fichier_csv = os.path.splitext(os.path.basename(chemin_fichier_csv))[0]
@@ -57,16 +58,17 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
           # Lit le contenu du fichier CSV avec la bibliothèque csv
           contenu_csv = csv.reader(fichier_csv, delimiter = ';')
           #print('contenu_csv :', contenu_csv)
-          #for ligne in contenu_csv:
-               #print('ligne contenu_csv :', ligne)
 
           # Récupère la première ligne du fichier CSV comme noms de colonnes
           colonnes = next(contenu_csv)
           print('colonnes :', colonnes)        
           nom_colonnes = ", ".join(colonnes)
-          #nom_colonnes = nom_colonnes.replace(";", ", ")
-          #print('nom_colonnes :', nom_colonnes)
           print(" ")
+
+          # Supprime les données existantes de la table si elle existe déjà
+          curseur.execute(f"DROP TABLE IF EXISTS {nom_table}")
+
+          # Créer la table
           curseur.execute(f"CREATE TABLE IF NOT EXISTS {nom_table} ({nom_colonnes})")
 
           # Insère les données dans la table
@@ -85,6 +87,14 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
 
 
 def execute_sql_queries(query_list, db_file, output_folder):
+     """
+     Execute les requêtes SQL présentes au sein de la liste query_list (voir le fichier query_sqlite.py)
+
+     Paramètres :
+        - query_list : Liste des requêtes à executer.
+        - db_file : Base de données où executer les requêtes.
+        - output_folder : Dossier où exporter sous format csv les résultats des requêtes
+     """
      # Connexion à la bdd
      conn = sqlite3.connect(db_file)
 

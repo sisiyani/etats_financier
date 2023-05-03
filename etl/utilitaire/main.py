@@ -22,6 +22,8 @@ def __main__(args):
           create_table_and_insert_into()
      elif args.commande == "execute_sql":
           execute_sql()
+     elif args.commande == "clean_output":
+          clean_output()
      elif args.commande == "all":
           all_functions()
      elif args.commande == "test":
@@ -96,11 +98,16 @@ def execute_sql():
      route_sqlite.execute_sql_queries(query_list, param_db["path"], param_output_folder["path"])
 
 
+def clean_output():
+     route_datacleaning.uniformiser_csv_dossier("data/output")
+
+
 def all_functions():
      init_db()
      create_clean_csv()
      create_table_and_insert_into()
      execute_sql()
+     clean_output()
      return
 
 

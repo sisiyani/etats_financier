@@ -12,14 +12,13 @@ from utils import *
 from os import listdir
 
 
-
 def create_csv(path_in, path_out):
      """
      Permet de convertir les fichiers xlsx en fichier csv.
 
      Paramètres :
-     - path_in : chemin du dossier où se trouvent les fichiers à convertir
-     - path_out : chemin du dossier où enregistrer les fichiers convertis
+        - path_in : chemin du dossier où se trouvent les fichiers à convertir
+        - path_out : chemin du dossier où enregistrer les fichiers convertis
      """
      print("##################")
      print("### CREATE_CSV ###")
@@ -51,9 +50,6 @@ def create_csv(path_in, path_out):
                elif inputFileName.split('.')[-1].lower() == 'csv':
                     df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
 
-               #df.columns = [col.upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U") for col in df.columns]
-               #df = df.applymap(lambda x: str(x).upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U"))
-
                outputFilePath = path_out + '/' + newName + '.csv'
                print("outputFilePath :", outputFilePath)
                utils.checkIfPathExists(outputFilePath)
@@ -66,6 +62,24 @@ def create_csv(path_in, path_out):
 
           print("---------------------------------------------")
           print(" ")
+
+
+def uniformiser_csv_dossier(dossier):
+     """
+     Permet d'uniformiser les données des fichiers csv présents au sein d'un dossier spécifique (hors demo.csv)
+
+     Paramètre :
+        - dossier : Dossier où sont situées les fichiers csv à uniformiser.
+     """
+     for fichier in os.listdir(dossier):
+          if fichier.endswith('.csv') and fichier != 'demo.csv':
+               print("File :", fichier)
+               chemin = os.path.join(dossier, fichier)
+               df = pd.read_csv(chemin, sep = ';')
+               df.columns = [col.upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U") for col in df.columns]
+               df = df.applymap(lambda x: str(x).upper().replace("É", "E").replace("È", "E").replace("À", "A").replace("Ç", "C").replace("Ô", "O").replace("Û", "U").replace("Ù", "U"))
+               df.to_csv(chemin, index=False, sep=';')
+               print("Fichier corrigé :", fichier)
 
 
 def cleanData(path):
@@ -110,6 +124,3 @@ def cleanData(path):
           df.to_csv(FilePath, index = None, header = True, sep = ';', encoding = 'UTF-8')
 
           print(' ')
-
-
-
