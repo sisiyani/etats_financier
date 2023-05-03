@@ -1,20 +1,27 @@
 # Etats_financier
 
-Automatisation des calcules.
+Automatisation du calcul des états-financier annuels des ARS.
 
 ## Architecture
-_documentation
-_README.md
-_etl
-   |__ utilitaire
-      |__ main.py
-      |__ data
-         |__ _database
-            |__ .gitignore
-            |__ etats_financier.db
-         |__ input
-            |__ .gitignore
-         |__ output
+README.md
+.gitignore
+etl
+|__utilitaire
+   |__ main.py
+   |__ data
+      |__ _database
+         |__ demo.db
+         |__ etats_financier.db
+      |__ input
+         |__ CORRESP
+            |__ demo.xlsx
+         |__ DFAS
+         |__ DGOS
+         |__ DSS
+         |__ FIR
+         |__ FMIS
+      |__ to_csv
+      |__ output
       |__ _modules
          |__ route_sqlite
             |__ __init__.py
