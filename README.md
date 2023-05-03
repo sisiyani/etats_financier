@@ -3,7 +3,7 @@
 Automatisation du calcul des états-financier des ARS.
 
 ## Architecture
-
+``` bash
 README.md
 .gitignore
 etl
@@ -17,3 +17,4 @@ etl
       |_ modules
       |_ settings
       |_ utils
+```
