@@ -6,6 +6,7 @@ import logging
 import os
 import pandas as pd
 import re
+import sqlite3
 
 from unidecode import unidecode
 
@@ -102,6 +103,9 @@ def cleanTxt(text):
      text = text.replace("-","_")
      text = text.replace(" ", "_")
      text = text.replace("'", "_")
+     text = text.replace("/", "_")
+     text = text.replace("(", "_").replace(")", "")
+     text = text.replace("%", "POURCENT")
 
      text = text.replace("__", "_")
      text = text.replace("___", "_")
@@ -136,3 +140,39 @@ def compter_valeurs(var):
           return len(var.split())
      else:
           return 1
+
+
+def delete_files(path):
+     """
+     Supprime les fichiers au sein du dossier sélectionné (sauf fichier de démo).
+
+     Paramètre :
+        - path : Chemin du dossier où supprimer les fichiers.
+     """
+     for filename in os.listdir(path):
+          if not filename.startswith('demo'):
+               os.remove(os.path.join(path, filename))
+               print('Fichier supprimé :', filename)
+
+
+def delete_tables(database_path):
+     """
+     Supprime les tables au sein de la base de données sélectionnée.
+
+     Paramètre :
+        - database_path : Chemin de la base de données où supprimer les tables.
+     """
+     conn = sqlite3.connect(database_path)
+     cursor = conn.cursor()
+
+     # Récupère le nom des tables de la bdd
+     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+     tables = cursor.fetchall()
+
+     # Supprime chaque table de la bdd
+     for table in tables:
+          cursor.execute(f"DROP TABLE {table[0]};")
+          print("Table supprimée :", table)
+
+     conn.commit()
+     conn.close()

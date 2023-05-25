@@ -77,7 +77,7 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
                print('ligne :', ligne)
                valeurs.append(tuple(ligne))
                
-          print('compte_valeurs :', utils.compter_valeurs(valeurs[1]))
+          print('compte_valeurs :', utils.compter_valeurs(valeurs[0]))
           
           curseur.executemany(f"INSERT OR REPLACE INTO {nom_table} ({nom_colonnes}) VALUES ({', '.join(['?'] * len(colonnes))})", valeurs)
           print(" ")

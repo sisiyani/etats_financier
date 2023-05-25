@@ -24,6 +24,12 @@ def __main__(args):
           execute_sql()
      elif args.commande == "clean_output":
           clean_output()
+     elif args.commande == "delete_files":
+          delete_files()
+     elif args.commande == "delete_db":
+          delete_db()
+     elif args.commande == "delete_all":
+          delete_all()
      elif args.commande == "all":
           all_functions()
      elif args.commande == "test":
@@ -93,13 +99,38 @@ def execute_sql():
      #print("query list : ", query_list)
 
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_output_folder = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output")
+     param_output_folder = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
 
      route_sqlite.execute_sql_queries(query_list, param_db["path"], param_output_folder["path"])
 
 
 def clean_output():
-     route_datacleaning.uniformiser_csv_dossier("data/output")
+     param_output = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     route_datacleaning.uniformiser_csv_dossier(param_output["path"])
+
+
+def delete_files():
+     param_output = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
+
+     utils.delete_files(param_output["path"])
+     utils.delete_files(param_to_csv["path"])
+
+
+def delete_db():
+     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+ 
+     utils.delete_tables(param_db["path"])
+
+
+def delete_all():
+     param_output = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
+     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+
+     utils.delete_files(param_output["path"])
+     utils.delete_files(param_to_csv["path"])
+     utils.delete_tables(param_db["path"])
 
 
 def all_functions():

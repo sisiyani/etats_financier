@@ -91,7 +91,64 @@ def get_query():
                    '' AS TEST,
                    '2021' AS ANNEE
               FROM DFAS
-                   LEFT JOIN CORRESP_CODE_REGION_ARS_2021 ccra ON DFAS.DREETS_124_2021 = ccra.LIBELLE_REGION;""")      
+                   LEFT JOIN CORRESP_CODE_REGION_ARS_2021 ccra ON DFAS.DREETS_124_2021 = ccra.LIBELLE_REGION;"""),
+
+          ("FMIS_2021",
+           """WITH ACTIONS_MODERNISATIONS AS (
+              SELECT 
+	           'EF-ES-2-2' AS CODE_DEPENSE,
+	           'ACTIONS MODERNISATIONS' AS LIBELLE_DEPENSE,
+	           ccra.CODE_REGION AS CODE_REGION,
+	           ddf.ETIQUETTES_DE_LIGNES AS LIBELLE_REGION,
+	           ddf.ACTIONS_MODERNISATIONS AS MONTANT_DEPENSE,
+	           '' AS MONTANT_DOTATION,
+	           '' AS CODE_FINANCEUR,
+	           '' AS CODE_ENVELOPPE,
+	           '' AS LIBELLE_ENVELOPPE,
+	           '2021' AS ANNEE
+              FROM CORRESP_CODE_REGION_ARS_2021 ccra, DGOS_DONNEES_FMESPP2021 ddf
+              WHERE ccra.LIBELLE_REGION = ddf.ETIQUETTES_DE_LIGNES AND ddf.ACTIONS_MODERNISATIONS != ''
+              ),
+              AUTRES_MODERNISATIONS AS (
+              SELECT
+	           'EF-ES-2-4' AS CODE_DEPENSE,
+	           'AUTRES MODERNISATIONS' AS LIBELLE_DEPENSE,
+	           ccra.CODE_REGION AS CODE_REGION,
+	           ddf.ETIQUETTES_DE_LIGNES AS LIBELLE_REGION,
+	           ddf.AUTRES_OPERATIONS AS MONTANT_DEPENSE,
+	           '' AS MONTANT_DOTATION,
+ 	           '' AS CODE_FINANCEUR,
+	           '' AS CODE_ENVELOPPE,
+	           '' AS LIBELLE_ENVELOPPE,
+	           '2021' AS ANNEE
+              FROM CORRESP_CODE_REGION_ARS_2021 ccra, DGOS_DONNEES_FMESPP2021 ddf
+              WHERE ccra.LIBELLE_REGION = ddf.ETIQUETTES_DE_LIGNES AND ddf.AUTRES_OPERATIONS != ''
+              ),
+              INVESTISSEMENTS AS (
+              SELECT
+	           'EF-ES-2-1' AS CODE_DEPENSE,
+	           'INVESTISSEMENTS' AS LIBELLE_DEPENSE,
+	           ccra.CODE_REGION AS CODE_REGION,
+	           ddf.ETIQUETTES_DE_LIGNES AS LIBELLE_REGION,
+	           ddf.INVESTISSEMENT AS MONTANT_DEPENSE,
+	           '' AS MONTANT_DOTATION,
+	           '' AS CODE_FINANCEUR,
+	           '' AS CODE_ENVELOPPE,
+	           '' AS LIBELLE_ENVELOPPE,
+	           '2021' AS ANNEE
+              FROM CORRESP_CODE_REGION_ARS_2021 ccra, DGOS_DONNEES_FMESPP2021 ddf
+              WHERE ccra.LIBELLE_REGION = ddf.ETIQUETTES_DE_LIGNES AND ddf.INVESTISSEMENT != ''
+              )
+              SELECT *
+              FROM ACTIONS_MODERNISATIONS
+              UNION
+              SELECT *
+              FROM AUTRES_MODERNISATIONS
+              UNION
+              SELECT *
+              FROM INVESTISSEMENTS
+              ORDER BY LIBELLE_DEPENSE ASC;""")
+
      ]
 
      return query_list       

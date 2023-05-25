@@ -32,7 +32,7 @@ def create_csv(path_in, path_out):
      for folderName in allFolders:
           print("---------------------------------------------")
           print("--- DOSSIER : ", folderName)
-          folderPath = 'data/input/{}'.format(folderName)
+          folderPath = 'data/01_INPUT/{}'.format(folderName)
           #print("folderPath :", folderPath)
           allFiles = os.listdir(folderPath)
           allFiles = [f for f in allFiles if f not in ["demo.csv", "demo.xlsx", ".gitignore"]]
