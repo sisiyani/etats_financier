@@ -26,7 +26,7 @@ def __main__(args):
           clean_output()
      elif args.commande == "delete_files":
           delete_files()
-     elif args.commande == "delete_db":
+     elif args.commande == "delete_tables":
           delete_db()
      elif args.commande == "delete_all":
           delete_all()
@@ -105,15 +105,20 @@ def execute_sql():
 
 
 def clean_output():
-     param_output = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
-     route_datacleaning.uniformiser_csv_dossier(param_output["path"])
+     param_output_1 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_output_2 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
+
+     route_datacleaning.uniformiser_csv_dossier(param_output_1["path"])
+     route_datacleaning.uniformiser_csv_dossier(param_output_2["path"])
 
 
 def delete_files():
-     param_output = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_output_1 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_output_2 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
      param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
 
-     utils.delete_files(param_output["path"])
+     utils.delete_files(param_output_1["path"])
+     utils.delete_files(param_output_2["path"])
      utils.delete_files(param_to_csv["path"])
 
 
@@ -124,11 +129,13 @@ def delete_db():
 
 
 def delete_all():
-     param_output = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_output_1 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_output_2 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
      param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
 
-     utils.delete_files(param_output["path"])
+     utils.delete_files(param_output_1["path"])
+     utils.delete_files(param_output_2["path"])
      utils.delete_files(param_to_csv["path"])
      utils.delete_tables(param_db["path"])
 

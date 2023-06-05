@@ -59,11 +59,14 @@ _ etl
 **_Pour exécuter les commandes, se rendre dans le dossier etats-financier/etl/utilitaire_**
 
 * ```python main.py init_database``` : Initialise la base de données etats_financier.db dans _data/database_.
-* ```python main.py create_csv``` : Convertit les fichiers présents au sein de _data/input_ et les enregistre sous CSV dans _data/to-csv_.
-* ```python main.py load_to_db``` : Au sein de la base de données etats_financier.db, créer les tables et insères les données provenant des fichiers de _data/to-csv_.
-* ```python main.py execute_sql``` : Exécute les requêtes SQL présentes au sein de _query-sqlite.py_ et enregistre le résultat des requêtes sous format CSV au sein du dossier _data/output_.
-* ```python main.py clean_output``` : Uniformise les fichiers CSV présents au sein du dossier _data/output_.
-* ```python main.py all``` : Effectue l'ensemble des commandes précédentes.
+* ```python main.py create_csv``` : Convertit les fichiers présents au sein de _data/input_ et les enregistre sous CSV dans _data/02-TO-CSV_.
+* ```python main.py load_to_db``` : Au sein de la base de données etats_financier.db, créer les tables et insères les données provenant des fichiers de _data/02-TO-CSV_.
+* ```python main.py execute_sql``` : Exécute les requêtes SQL présentes au sein de _query-sqlite.py_ et enregistre le résultat des requêtes sous format CSV au sein du dossier _data/03-OUTPUT-1_.
+* ```python main.py clean_output``` : Uniformise les fichiers CSV présents au sein du dossier _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_.
+* ```python main.py delete_files``` : Supprime l'ensemble des fichiers de résultats contenus au sein de _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_.
+* ```python main.py delete_tables``` : Supprime l'ensemble des tables présentes au sein de la bdd _data/database/etats_financier.db_.
+* ```python main.py delete_all``` : Supprime l'ensemble des fichiers de résultats contenus au sein de _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_ ainsi que les tables présentes au sein de la bdd _data/database/etats_financier.db_. 
+* ```python main.py all``` : Effectue l'ensemble des commandes précédentes à l'exception des commandes de suppression (delete_files / delete_tables / delete_all).
 
 ## Gestion des fichiers
 
@@ -79,3 +82,4 @@ Commande à réaliser pour transférer un fichier du local vers la VM :
 #### Télécharger les fichiers des résultats :
 Commande à réaliser pour transférer un fichier de la VM au local :
 * scp user@host:/etats_financier/etl/utilitaire/data/03_OUTPUT_1/NOMDUFICHIER.csv C:\Users\prenom.nom\Documents
+* scp user@host:/etats_financier/etl/utilitaire/data/04_OUTPUT_2/NOMDUFICHIER.csv C:\Users\prenom.nom\Documents
