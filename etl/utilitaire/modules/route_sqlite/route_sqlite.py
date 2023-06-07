@@ -82,15 +82,6 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
           curseur.executemany(f"INSERT OR REPLACE INTO {nom_table} ({nom_colonnes}) VALUES ({', '.join(['?'] * len(colonnes))})", valeurs)
           print(" ")
 
-          curseur.execute("PRAGMA table_info(nom_table)")
-          resultat = curseur.fetchall()
-
-          colonnes = [colonne[1] for colonne in resultat]
-          if "EXERCICE" in colonnes:
-               curseur.execute(f"ALTER TABLE {nom_table} ALTER COLUMN EXERCICE TYPE INTEGER")
-          elif "ANNEE" in colonnes:
-               curseur.execute(f"ALTER TABLE {nom_table} ALTER COLUMN ANNEE TYPE INTEGER")
-
      # Enregistre les modifications dans la base de données
      connexion_base_donnees.commit()
 
@@ -104,6 +95,10 @@ def execute_sql_queries(query_list, db_file, output_folder, target_year):
         - db_file : Base de données où executer les requêtes.
         - output_folder : Dossier où exporter sous format csv les résultats des requêtes
      """
+     list = [target_year, target_year - 1, target_year - 2]
+     print("list :", list)   
+
+
      # Connexion à la bdd
      conn = sqlite3.connect(db_file)
 
@@ -125,3 +120,52 @@ def execute_sql_queries(query_list, db_file, output_folder, target_year):
 
      # Fermeture de la connexion à la base de données
      conn.close()
+
+def execute_sql_queries2(query_list, db_file, output_folder, target_year):
+    """
+    Execute les requêtes SQL présentes au sein de la liste query_list (voir le fichier query_sqlite.py)
+
+    Paramètres :
+        - query_list : Liste des requêtes à executer.
+        - db_file : Base de données où executer les requêtes.
+        - output_folder : Dossier où exporter sous format csv les résultats des requêtes
+        - target_year : Année cible pour les données à extraire
+    """
+    years = [target_year, target_year - 1, target_year - 2]
+    print("years :", years)
+
+    # Connexion à la base de données
+    conn = sqlite3.connect(db_file)
+
+    # DataFrame pour stocker les résultats de chaque requête
+    dfs = []
+
+    # Pour chaque requête SQL dans la liste
+    for i, (query_name, query) in enumerate(query_list):
+        print(f"Exécution de la requête {i+1}/{len(query_list)} : {query_name}")
+
+        for year in years:
+            query_with_year_constraint = query.replace("{{YEAR}}", str(year))
+            #print('query_with_year_constraint :', query_with_year_constraint)
+
+            # Exécution de la requête SQL
+            df = pd.read_sql(query_with_year_constraint, conn)
+
+            # Ajout de l'année en tant que colonne dans le DataFrame
+            df['YEAR'] = year
+
+            # Ajout du DataFrame à la liste
+            dfs.append(df)
+
+    # Concaténation des DataFrames
+    result_df = pd.concat(dfs)
+
+    # Enregistrement du résultat dans un fichier CSV
+    output_file = f"result_{target_year}.csv"
+    output_path = f"{output_folder}/{output_file}"
+    result_df.to_csv(output_path, sep=";", index=False, encoding='utf-8')
+    print(f"Fichier {output_file} créé correctement et enregistré dans {output_folder}")
+
+    # Fermeture de la connexion à la base de données
+    conn.close()
+

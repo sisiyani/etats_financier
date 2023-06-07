@@ -18,7 +18,20 @@ def get_query():
               FROM
                    FIR_SIBC_BUDGET fsb
                    INNER JOIN FIR_CORRESP_FIR fcf on fcf.CODE_MISSION = fsb.CODE_DESTINATION and fcf.EXERCICE = fsb.EXERCICE
-              WHERE fsb.EXERCICE >= "{{YEAR}}" - 2 AND fsb.EXERCICE <= "{{YEAR}}";""")
+              WHERE fsb.EXERCICE = "{{YEAR}}";"""),
+
+          ("DFAS_FRAIS_JURY",
+           """SELECT
+	           ddja.CODE_REGION,
+	           ddja.REGION,
+	           ddja.ORGANISATION_LOGISTIQUE_DES_JURYS_HORS_VAE_ET_VAE_CP,
+	           ddjap.CODE_FINANCEUR,
+	           ddjap.CODE_ENVELOPPE,
+	           ddjap.CODE_DEPENSE,
+	           ddja.EXERCICE 
+              FROM 
+	           DFAS_DEPENSES_JURY_ARS ddja, DFAS_DEPENSES_JURY_ARS_PARAMETRAGE ddjap
+	      WHERE ddja.EXERCICE = "{{YEAR}}";""")
      ]
 
      return query_list
