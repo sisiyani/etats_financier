@@ -96,12 +96,11 @@ def create_table_and_insert_into():
 
 def execute_sql():
      query_list = query_sqlite.get_query()
-     #print("query list : ", query_list)
 
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
      param_output_folder = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
 
-     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_output_folder["path"])
+     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_output_folder["path"], args.annee)
 
 
 def clean_output():
@@ -152,11 +151,10 @@ def all_functions():
 # Initialisation du parsing
 parser = argparse.ArgumentParser()
 parser.add_argument("commande", type = str, help = "Commande à exécuter")
+parser.add_argument("--annee", type = str, default=None, help = "Année à générer")
 args = parser.parse_args()
+
 
 # Core
 if __name__ == "__main__":
      __main__(args)
-
-
-

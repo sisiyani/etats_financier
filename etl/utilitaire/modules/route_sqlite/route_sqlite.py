@@ -82,11 +82,20 @@ def creer_table_csv(chemin_fichier_csv, connexion_base_donnees):
           curseur.executemany(f"INSERT OR REPLACE INTO {nom_table} ({nom_colonnes}) VALUES ({', '.join(['?'] * len(colonnes))})", valeurs)
           print(" ")
 
+          curseur.execute("PRAGMA table_info(nom_table)")
+          resultat = curseur.fetchall()
+
+          colonnes = [colonne[1] for colonne in resultat]
+          if "EXERCICE" in colonnes:
+               curseur.execute(f"ALTER TABLE {nom_table} ALTER COLUMN EXERCICE TYPE INTEGER")
+          elif "ANNEE" in colonnes:
+               curseur.execute(f"ALTER TABLE {nom_table} ALTER COLUMN ANNEE TYPE INTEGER")
+
      # Enregistre les modifications dans la base de données
      connexion_base_donnees.commit()
 
 
-def execute_sql_queries(query_list, db_file, output_folder):
+def execute_sql_queries(query_list, db_file, output_folder, target_year):
      """
      Execute les requêtes SQL présentes au sein de la liste query_list (voir le fichier query_sqlite.py)
 
@@ -102,12 +111,16 @@ def execute_sql_queries(query_list, db_file, output_folder):
      for i, (query_name, query) in enumerate(query_list):
           print(f"Exécution de la requête {i+1}/{len(query_list)} : {query_name}")
 
+          query_with_year_constraint = query.replace("{{YEAR}}", str(target_year))
+          print('query_with_year_constraint :', query_with_year_constraint)
+
           # Exécution de la requête SQL
-          df = pd.read_sql(query, conn)
+          df = pd.read_sql(query_with_year_constraint, conn)
 
           # Enregistrement du résultat sous forme de fichier CSV dans le dossier spécifié en argument
-          output_file = f"{query_name}.csv"
-          df.to_csv(f"{output_folder}/{output_file}", sep = ";", index = False, encoding = 'utf-8')
+          output_file = f"{query_name}_{target_year}.csv"
+          output_path = f"{output_folder}/{output_file}"
+          df.to_csv(output_path, sep = ";", index = False, encoding = 'utf-8')
           print(f"Fichier {output_file} crée correctement et enregistré au sein de {output_folder}")
 
      # Fermeture de la connexion à la base de données

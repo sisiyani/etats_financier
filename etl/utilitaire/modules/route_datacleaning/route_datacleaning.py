@@ -50,6 +50,10 @@ def create_csv(path_in, path_out):
                elif inputFileName.split('.')[-1].lower() == 'csv':
                     df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
 
+               # Convertir la colonne contenant l'année en entier (int)
+               if 'EXERCICE' in df.columns:
+                    df['EXERCICE'] = df['EXERCICE'].astype(int)
+
                outputFilePath = path_out + '/' + newName + '.csv'
                print("outputFilePath :", outputFilePath)
                utils.checkIfPathExists(outputFilePath)
