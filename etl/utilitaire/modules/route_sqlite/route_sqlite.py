@@ -121,6 +121,9 @@ def execute_sql_queries(query_list, db_file, output_folder, target_year):
      # Fermeture de la connexion à la base de données
      conn.close()
 
+
+import os
+
 def execute_sql_queries2(query_list, db_file, output_folder, target_year):
     """
     Execute les requêtes SQL présentes au sein de la liste query_list (voir le fichier query_sqlite.py)
@@ -137,12 +140,13 @@ def execute_sql_queries2(query_list, db_file, output_folder, target_year):
     # Connexion à la base de données
     conn = sqlite3.connect(db_file)
 
-    # DataFrame pour stocker les résultats de chaque requête
-    dfs = []
-
     # Pour chaque requête SQL dans la liste
     for i, (query_name, query) in enumerate(query_list):
         print(f"Exécution de la requête {i+1}/{len(query_list)} : {query_name}")
+        print("query :", query)
+
+        # DataFrame pour stocker les résultats de chaque requête
+        dfs = []
 
         for year in years:
             query_with_year_constraint = query.replace("{{YEAR}}", str(year))
@@ -151,21 +155,20 @@ def execute_sql_queries2(query_list, db_file, output_folder, target_year):
             # Exécution de la requête SQL
             df = pd.read_sql(query_with_year_constraint, conn)
 
-            # Ajout de l'année en tant que colonne dans le DataFrame
-            df['YEAR'] = year
-
             # Ajout du DataFrame à la liste
             dfs.append(df)
 
-    # Concaténation des DataFrames
-    result_df = pd.concat(dfs)
+        # Concaténation des DataFrames
+        result_df = pd.concat(dfs)
 
-    # Enregistrement du résultat dans un fichier CSV
-    output_file = f"result_{target_year}.csv"
-    output_path = f"{output_folder}/{output_file}"
-    result_df.to_csv(output_path, sep=";", index=False, encoding='utf-8')
-    print(f"Fichier {output_file} créé correctement et enregistré dans {output_folder}")
+        # Enregistrement du résultat dans un fichier CSV
+        output_file = f"RESULT_{query_name}_{target_year}.csv"
+        output_path = os.path.join(output_folder, output_file)
+        result_df.to_csv(output_path, sep=";", index=False, encoding='utf-8')
+        print(f"Fichier {output_file} créé correctement et enregistré dans {output_folder}")
 
     # Fermeture de la connexion à la base de données
     conn.close()
+
+
 

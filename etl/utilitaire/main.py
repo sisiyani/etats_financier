@@ -95,9 +95,10 @@ def create_table_and_insert_into():
 
 
 def execute_sql():
-     print("Année :", args.annee)
+     #print("Année :", args.annee)
      ann = args.annee - 2
-     print("Ann :", ann)
+
+     #print("Ann :", ann)
      query_list = query_sqlite.get_query()
 
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")

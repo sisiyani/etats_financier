@@ -33,5 +33,4 @@ def get_query():
 	           DFAS_DEPENSES_JURY_ARS ddja, DFAS_DEPENSES_JURY_ARS_PARAMETRAGE ddjap
 	      WHERE ddja.EXERCICE = "{{YEAR}}";""")
      ]
-
      return query_list
