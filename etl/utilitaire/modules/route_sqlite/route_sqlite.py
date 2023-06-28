@@ -143,7 +143,7 @@ def execute_sql_queries2(query_list, db_file, output_folder, target_year):
     # Pour chaque requête SQL dans la liste
     for i, (query_name, query) in enumerate(query_list):
         print(f"Exécution de la requête {i+1}/{len(query_list)} : {query_name}")
-        print("query :", query)
+        
 
         # DataFrame pour stocker les résultats de chaque requête
         dfs = []
