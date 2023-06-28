@@ -66,7 +66,7 @@ _ etl
 * ```python main.py delete_files``` : Supprime l'ensemble des fichiers de résultats contenus au sein de _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_.
 * ```python main.py delete_tables``` : Supprime l'ensemble des tables présentes au sein de la bdd _data/database/etats_financier.db_.
 * ```python main.py delete_all``` : Supprime l'ensemble des fichiers de résultats contenus au sein de _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_ ainsi que les tables présentes au sein de la bdd _data/database/etats_financier.db_. 
-* ```python main.py all``` : Effectue l'ensemble des commandes précédentes à l'exception des commandes de suppression (delete_files / delete_tables / delete_all).
+* ```python main.py all --annee XXXX``` : Effectue l'ensemble des commandes précédentes à l'exception des commandes de suppression (delete_files / delete_tables / delete_all).
 
 ## Gestion des fichiers
 

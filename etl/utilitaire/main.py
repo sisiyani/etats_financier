@@ -148,7 +148,7 @@ def all_functions():
      create_clean_csv()
      create_table_and_insert_into()
      execute_sql()
-     clean_output()
+     #clean_output()
      return
 
 
