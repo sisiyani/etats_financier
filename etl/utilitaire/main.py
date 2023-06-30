@@ -19,9 +19,13 @@ def __main__(args):
      elif args.commande == "create_csv":
           create_clean_csv()
      elif args.commande == "load_to_db":
-          create_table_and_insert_into()
+          insert_into()
      elif args.commande == "execute_sql":
-          execute_sql()
+          if args.annee is None:
+               print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
+          else:
+               execute_sql_1()
+               execute_sql_2()
      elif args.commande == "clean_output":
           clean_output()
      elif args.commande == "delete_files":
@@ -67,44 +71,38 @@ def create_clean_csv():
      return
 
 
-def create_table_and_insert_into(): 
+def insert_into(): 
      # Récupération des paramètres nécessaires depuis le fichier settings.json
-     param_database = utils.read_settings("settings/settings.json", dict = "sqlite_db", elem = "LOCAL SERVER")
-     param_file = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
+     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
      
-     db_path = sqlite3.connect(param_database['database'])
+     route_sqlite.insert_into_db(param_db['path'], param_files['path'])
 
-     # Liste les fichiers à insérer au sein de la bdd
-     files = []
-     files_path = param_file['path']
-    
-     for file in os.listdir(files_path):
-          if file.split('/')[-1] != "demo.csv":
-               print('file :', file)
-               files.append(files_path + '/' + file)
+
+def execute_sql_1():
+     # Récupération des requêtes SQL à utiliser afin de produire les fichiers
+     query_list = query_sqlite.get_query(level='1')
+
+     # Récupération des paramètres nécessaires à l'execution de execute_sql_queries(query_list, db_file, output_folder, target_year)
+     # puis de insert_into_db(db_path, files_path)
+     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
      
-     print(" ")
-     print('files :', files)
-     print(" ")
+     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_files["path"], args.annee)
 
-     # Boucle créant les tables et introduisant les données au sein de la bdd
-     for file in files:
-          route_sqlite.creer_table_csv(file, db_path)
-
-     db_path.close()
+     route_sqlite.insert_into_db(param_db['path'], param_files['path']) 
 
 
-def execute_sql():
-     #print("Année :", args.annee)
-     ann = args.annee - 2
-
-     #print("Ann :", ann)
-     query_list = query_sqlite.get_query()
+def execute_sql_2():
+     query_list = query_sqlite.get_query(level='2')
+     #print("query_list from main.py :", query_list)
 
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_output_folder = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
+     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
 
-     route_sqlite.execute_sql_queries2(query_list, param_db["path"], param_output_folder["path"], args.annee)
+     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_files["path"], args.annee)
+
+     route_sqlite.insert_into_db(param_db['path'], param_files['path'])
 
 
 def clean_output():
