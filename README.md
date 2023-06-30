@@ -61,7 +61,7 @@ _ etl
 * ```python main.py init_database``` : Initialise la base de données etats_financier.db dans _data/database_.
 * ```python main.py create_csv``` : Convertit les fichiers présents au sein de _data/input_ et les enregistre sous CSV dans _data/02-TO-CSV_.
 * ```python main.py load_to_db``` : Au sein de la base de données etats_financier.db, créer les tables et insères les données provenant des fichiers de _data/02-TO-CSV_.
-* ```python main.py execute_sql --annee XXXX``` : Exécute les requêtes SQL présentes au sein de _query-sqlite.py_ et enregistre le résultat des requêtes sous format CSV au sein du dossier _data/03-OUTPUT-1_.Il est nécessaire de spécifier l'année que l'on souhaite executer.
+* ```python main.py execute_sql --annee XXXX``` : Exécute les requêtes SQL présentes au sein de _query-sqlite.py_ et enregistre le résultat des requêtes sous format CSV au sein du dossier _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_.Il est nécessaire de spécifier l'année que l'on souhaite executer.
 * ```python main.py clean_output``` : Uniformise les fichiers CSV présents au sein du dossier _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_.
 * ```python main.py delete_files``` : Supprime l'ensemble des fichiers de résultats contenus au sein de _data/03-OUTPUT-1_ et _data/04-OUTPUT-2_.
 * ```python main.py delete_tables``` : Supprime l'ensemble des tables présentes au sein de la bdd _data/database/etats_financier.db_.

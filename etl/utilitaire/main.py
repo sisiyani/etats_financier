@@ -35,7 +35,10 @@ def __main__(args):
      elif args.commande == "delete_all":
           delete_all()
      elif args.commande == "all":
-          all_functions()
+          if args.annee is None:
+               print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
+          else:
+               all_functions()
      elif args.commande == "test":
           print("test")
      return
