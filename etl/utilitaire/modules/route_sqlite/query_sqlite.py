@@ -1,6 +1,40 @@
 # -*- coding: utf-8 -*-
 
-def get_query(level):
+def create_table_query():
+     querylist=["""CREATE TABLE IF NOT EXISTS valeur AS
+               select  ra.ANNEE ,rr.COD_REGION ,t.LIBELLE,tc.CODE, (WITH pere(PERE_COD_DEPENSE,COD_DEPENSE)  AS (
+						SELECT PERE_COD_DEPENSE,COD_DEPENSE
+						FROM REF_DEPENSE
+						WHERE  COD_DEPENSE IS tc.CODE
+						UNION ALL
+						SELECT r.PERE_COD_DEPENSE,r.COD_DEPENSE
+						FROM   REF_DEPENSE r, pere p
+						WHERE  r.PERE_COD_DEPENSE = p.COD_DEPENSE 
+						)
+					SELECT sum(k.MNT_REALISE) AS VALEUR
+					FROM  pere p, keyrus k
+					where  k.COD_DEPENSE =p.COD_DEPENSE and k.ANNEE=ra.ANNEE and k.COD_REGION is rr.COD_REGION ) as "valeur"
+               from REF_REGION rr ,REF_ANNEE ra ,titre_code tc, titre t
+               where t.ID=tc.ID ;""",
+               """CREATE TABLE IF NOT EXISTS finance AS
+               select  ra.ANNEE ,rr.COD_REGION ,t.LIBELLE,tc.CODE, (WITH pere(PERE_COD_ENVELOPPE,COD_ENVELOPPE)  AS (
+						SELECT PERE_COD_ENVELOPPE,COD_ENVELOPPE
+						FROM REF_ENVELOPPE
+						WHERE  COD_ENVELOPPE IS tc.CODE
+						UNION ALL
+						SELECT r.PERE_COD_ENVELOPPE,r.COD_ENVELOPPE
+						FROM   REF_ENVELOPPE r, pere p
+						WHERE  r.PERE_COD_ENVELOPPE = p.COD_ENVELOPPE 
+						)
+					SELECT sum(k.MNT_REALISE) AS FINANCE
+					FROM  pere p, keyrus k
+					where  k.COD_ENVELOPPE =p.COD_ENVELOPPE and k.ANNEE=ra.ANNEE and k.COD_REGION is rr.COD_REGION ) as "finance"
+               from REF_REGION rr ,REF_ANNEE ra ,titre_code_financeur tc, titre_financeur t
+               where t.ID=tc.ID ;"""
+     ]
+     return querylist
+
+def get_query(annee):
      """
      Regroupe l'ensemble des requêtes SQL à executer au sein du programme via 
      la fonction route_sqlite.execute_sql_queries().
@@ -18,49 +52,47 @@ def get_query(level):
      """
      # Fonction qui retourne une liste de requête SQL à executer afin de créer les fichiers intermédiaires au sein de OUTPUT_1
      # à partir des fichiers sources (INPUT)
-     if level == '1':
-          query_list = [
-              ("FIR_DECAISSEMENT", 
-               """SELECT
-                       fcf.CODE_DEPENSE as COD_DEPENSE,
-                       fsb.CODE_REGION as COD_REGION,
-                       fsb.LIB_REGION as LIB_REGION,
-                       fsb.CP_CONSOMMES as MNT_REALISE,
-                       'FIR' as COD_FINANCEUR,
-                       fcf.CODE_ENV_2016 as COD_ENVELOPPE,
-                       fsb.EXERCICE as ANNEE
-                  FROM
-                       FIR_SIBC_BUDGET fsb
-                       INNER JOIN FIR_CORRESP_FIR fcf on fcf.CODE_MISSION = fsb.CODE_DESTINATION and fcf.EXERCICE = fsb.EXERCICE
-                  WHERE fsb.EXERCICE = "{{YEAR}}";"""),
-
-              ("DFAS_FRAIS_JURY",
-               """SELECT
-	               ddja.CODE_REGION,
-	               ddja.REGION,
-	               ddja.ORGANISATION_LOGISTIQUE_DES_JURYS_HORS_VAE_ET_VAE_CP,
-	               ddjap.CODE_FINANCEUR,
-	               ddjap.CODE_ENVELOPPE,
-	               ddjap.CODE_DEPENSE,
-	               ddja.EXERCICE 
-                  FROM 
-	               DFAS_DEPENSES_JURY_ARS ddja, DFAS_DEPENSES_JURY_ARS_PARAMETRAGE ddjap
-	          WHERE ddja.EXERCICE = "{{YEAR}}";""")
-          ]
+     
 
      # Liste des requêtes de second niveau utilisées afin de créer le rapport final à partir des fichiers créés au sein de OUTPUT_1 
-     elif level == '2':
-          query_list = [
-               ("TEST",
-                """SELECT
-                        *
-                   FROM RESULT_DFAS_FRAIS_JURY_2021 dfas
-                   WHERE dfas.EXERCICE = "{{YEAR}}";""")
-          ]
-
-     else:
-          print("Merci de préciser quelle liste de requêtes SQL vous souhaitez utiliser au sein de la fonction get_query() appelée dans main.py")
+    
+     query_list = {"destination_FRANCE":
+               """select t.ID,v.LIBELLE ,
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {} en National',
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {} en National',
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {} en National' 
+          from valeur v, titre t
+          where v.LIBELLE =t.LIBELLE 
+          group by t.ID ,v.LIBELLE 
+          order by t.ID;
+          """.format(annee-2,annee-2,annee-1,annee-1,annee,annee),
+          "destination_REGION":
+               """select t.ID,v.LIBELLE ,
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {}',
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {}',
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {}' 
+          from valeur v, titre t
+          where v.LIBELLE =t.LIBELLE and v.COD_REGION ='PARAM_REGION'
+          group by t.ID ,v.LIBELLE 
+          order by t.ID;
+          """.format(annee-2,annee-2,annee-1,annee-1,annee,annee),
+          "financeur_FRANCE":
+               """select t.ID,v.LIBELLE ,
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {} en National' 
+          from finance v, titre_financeur t
+          where v.LIBELLE =t.LIBELLE 
+          group by t.ID ,v.LIBELLE 
+          order by t.ID;
+          """.format(annee,annee),
+          "destination_REGION":
+               """select t.ID,v.LIBELLE ,
+          ROUND((SUM(CASE WHEN v.ANNEE  = '{}' THEN v.valeur ELSE 0 END)/1000000.00),2) AS 'Réalisé année {}' 
+          from finance v, titre_financeur t
+          where v.LIBELLE =t.LIBELLE and v.COD_REGION ='PARAM_REGION'
+          group by t.ID ,v.LIBELLE 
+          order by t.ID;
+          """.format(annee,annee)}
      
-     #print("query_list :", query_list)
 
+   
      return query_list
