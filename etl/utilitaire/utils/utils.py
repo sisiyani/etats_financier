@@ -87,7 +87,10 @@ def cleanTxt(text):
      Paramètre : 
         - text : Texte à uniformiser.
      """
-
+     print("Text-----", text)
+     text=text.rstrip()
+     if text == 'Mnt_Realise_Rembourse':
+          text='Mnt_Realise'
      try:
           text = unidecode(text.lower(), 'utf-8')
      except (TypeError, NameError):
@@ -122,6 +125,7 @@ def cleanSrcData(df):
      Paramètre :
         - df : Dataframe à uniformiser
      """
+     
      df.columns = [cleanTxt(i) for i in df.columns.values.tolist()]
      return df
 
