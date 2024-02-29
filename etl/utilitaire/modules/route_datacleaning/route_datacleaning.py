@@ -7,12 +7,13 @@ import os
 import csv
 import unicodedata
 import chardet
-
+import numpy
 from utils import *
 from os import listdir
+from datetime import datetime
 
 
-def create_csv(path_in, path_out):
+def create_csv(path_in, path_out,annee):
      """
      Permet de convertir les fichiers xlsx en fichier csv.
 
@@ -29,44 +30,113 @@ def create_csv(path_in, path_out):
      allFolders = os.listdir(path_in)
      print("allFolders :", allFolders)
 
-     for folderName in allFolders:
-          print("---------------------------------------------")
-          print("--- DOSSIER : ", folderName)
-          folderPath = 'data/01_INPUT/{}'.format(folderName)
-          #print("folderPath :", folderPath)
-          allFiles = os.listdir(folderPath)
-          allFiles = [f for f in allFiles if f not in ["demo.csv", "demo.xlsx", ".gitignore"]]
-          #print("allFiles :", allFiles)
+     
+     print("---------------------------------------------")
+     print("--- DOSSIER : KEYRUS")
+     folderPath = 'data/01_INPUT/KEYRUS'
 
-          for inputFileName in allFiles:
-               inputFilePath = folderPath + '/' + inputFileName
-               print("inputFilePath :", inputFilePath)
-               newName = folderName + '_' + inputFileName.split('.')[0]
-               newName = utils.cleanTitle(newName)
+     allFiles = os.listdir(folderPath)
+     allFiles = [f for f in allFiles if f not in ["demo.csv", "demo.xlsx", ".gitignore"]]
+     #print("allFiles :", allFiles)
+     colonnes_et_types = {'COD_DEPENSE':str,'COD_REGION':str,'LIB_REGION':str,'MNT_REALISE':float,'COD_FINANCEUR':str,'COD_ENVELOPPE':str,'ANNEE':str,'Fichier Source':str}
+     df_res=pd.DataFrame(columns=colonnes_et_types.keys())
+     
+     for inputFileName in allFiles:
+          inputFilePath = folderPath + '/' + inputFileName
+          #print("inputFilePath :", inputFilePath)
+          print("inputFileName :", inputFileName)
+          #newName = inputFileName.split('.')[0]
+          #newName = utils.cleanTitle(newName)
 
-               # read file and uniformize data
-               if inputFileName.split('.')[-1].lower() == 'xlsx':
-                    df = pd.read_excel(inputFilePath, header=0)
-               elif inputFileName.split('.')[-1].lower() == 'csv':
-                    df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
+          # read file and uniformize data
+          if inputFileName.split('.')[-1].lower() == 'xlsx':
+               df = pd.read_excel(inputFilePath, header=0)
+          elif inputFileName.split('.')[-1].lower() == 'csv':
+               df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
+          if inputFileName.split('.')[0]== 'EF_ARS_ATIH_2022':
+               df_tmp=pd.read_excel('data/01_INPUT/Correspondance/transco_ATIH.xlsx')
+               df = pd.merge(df, df_tmp, on='Cod_Depense', how='left')
+               df['Cod_Depense'] = df['NEW_CODE_DEPENSE'].combine_first(df['Cod_Depense'])
 
-               # Convertir la colonne contenant l'année en entier (int)
-               if 'EXERCICE' in df.columns:
-                    df['EXERCICE'] = df['EXERCICE'].astype(int)
+          df = utils.cleanSrcData(df)
+          
+          new_df=df[['COD_DEPENSE','COD_REGION', 'LIB_REGION','MNT_REALISE','COD_FINANCEUR', 'COD_ENVELOPPE','ANNEE']]
+          new_df['Fichier Source']=inputFileName
+          
+          df_res=pd.concat([df_res, new_df], ignore_index=True)
 
-               outputFilePath = path_out + '/' + newName + '.csv'
-               print("outputFilePath :", outputFilePath)
-               utils.checkIfPathExists(outputFilePath)
+     print(df_res.dtypes)
 
-               # write file
-               df.to_csv(outputFilePath, index=None, header=True, sep=';', encoding='utf-8-sig')
+     df_res['COD_REGION'] = df_res['COD_REGION'].fillna('SSA')
+     df_res['COD_REGION'] = df_res['COD_REGION'].apply(lambda x: str(x).split('.')[0] if '.' in str(x) else str(x))
+     df_res['COD_REGION'] = df_res['COD_REGION'].apply(lambda x: ("0"+str(x)) if (len(str(x)) == 1)  else str(x))
+     df_res['COD_REGION'] = df_res['COD_REGION'].apply(lambda x: 'SSA' if (len(str(x)) == 0)  else str(x))
+     df_res['COD_REGION'] = df_res['COD_REGION'].replace('','SSA')
+     df_res['MNT_REALISE'] = df_res['MNT_REALISE'].replace('-   ', 0)
+     df_res['MNT_REALISE']=df_res['MNT_REALISE'].fillna(0)
+     df_res=df_res.astype(colonnes_et_types)
 
-               print('-- FICHIER CSV AJOUTE: {}'.format(inputFileName))
-               print(" ")
+     outputFilePath = path_out + '/keyrus.csv'
+     print(df['COD_REGION'].isna().sum())
+     print("outputFilePath :", outputFilePath)
+     utils.checkIfPathExists(outputFilePath)
+
+     # write file
+     df_res.to_csv(outputFilePath, index=None, header=True, sep=';', encoding='utf-8-sig')
+
+     print('-- FICHIER CSV AJOUTE: keyrus')
+     print(" ")
+
+     print("---------------------------------------------")
+     print(" ")
+     folderPath = 'data/01_INPUT/Correspondance'
+
+     allFiles = os.listdir(folderPath)
+     allFiles = [f for f in allFiles if f not in ["demo.csv", "demo.xlsx", ".gitignore"]]
+     #print("allFiles :", allFiles)
+   
+     for inputFileName in allFiles:
+          inputFilePath = folderPath + '/' + inputFileName
+          #print("inputFilePath :", inputFilePath)
+          print("inputFileName :", inputFileName)
+          newName = inputFileName.split('.')[0]
+          #newName = utils.cleanTitle(newName)
+
+          # read file and uniformize data
+          if inputFileName.split('.')[-1].lower() == 'xlsx' or inputFileName.split('.')[-1].lower() == 'xls':
+               df = pd.read_excel(inputFilePath, header=0)
+          elif inputFileName.split('.')[-1].lower() == 'csv':
+               df = pd.read_csv(inputFilePath, sep=';', encoding='utf-8')
+          
+          df = utils.cleanSrcData(df)
+          
+
+          outputFilePath = path_out + '/'+newName+'.csv'
+          print("outputFilePath :", outputFilePath)
+          utils.checkIfPathExists(outputFilePath)
+          print(df.columns)
+          # write file
+          df.to_csv(outputFilePath, index=None, header=True, sep=';', encoding='utf-8-sig')
+
+          print('-- FICHIER CSV AJOUTE:',outputFilePath)
+          print(" ")
 
           print("---------------------------------------------")
           print(" ")
+     
+     df=pd.DataFrame({'ANNEE': [annee, annee-1, annee-2]})
+     outputFilePath = path_out + '/REF_ANNEE.csv'
+     print("outputFilePath :", outputFilePath)
+     utils.checkIfPathExists(outputFilePath)
+     print(df.columns)
+     # write file
+     df.to_csv(outputFilePath, index=None, header=True, sep=';', encoding='utf-8-sig')
 
+     print('-- FICHIER CSV AJOUTE:',outputFilePath)
+     print(" ")
+
+     print("---------------------------------------------")
+     print(" ")
 
 def uniformiser_csv_dossier(dossier):
      """
