@@ -17,15 +17,17 @@ def __main__(args):
      if args.commande == "init_database":
           init_db()
      elif args.commande == "create_csv":
-          create_clean_csv()
+          if args.annee is None:
+               print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
+          create_clean_csv(args.annee)
      elif args.commande == "load_to_db":
           insert_into()
      elif args.commande == "execute_sql":
-          if args.annee is None:
-               print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
-          else:
-               execute_sql_1()
-               execute_sql_2()
+          #if args.annee is None:
+          #     print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
+          #else:
+          execute_sql()
+          #execute_sql_2()
      elif args.commande == "clean_output":
           clean_output()
      elif args.commande == "delete_files":
@@ -38,7 +40,7 @@ def __main__(args):
           if args.annee is None:
                print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
           else:
-               all_functions()
+               all_functions(args.annee)
      elif args.commande == "test":
           print("test")
      return
@@ -61,13 +63,13 @@ def init_db():
      return
 
 
-def create_clean_csv():
+def create_clean_csv(annee):
      # Récupération des paramètres nécessaires depuis le fichier settings.json
      param_input = utils.read_settings("settings/settings.json", dict = "path_data", elem = "input")
      param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
      
      # Création des fichiers csv à partir des fichiers sources 
-     route_datacleaning.create_csv(param_input["path"], param_to_csv["path"])
+     route_datacleaning.create_csv(param_input["path"], param_to_csv["path"],annee)
      # Uniformisation des données des fichiers csv
      route_datacleaning.cleanData(param_to_csv["path"])
      
@@ -82,30 +84,30 @@ def insert_into():
      route_sqlite.insert_into_db(param_db['path'], param_files['path'])
 
 
+
 def execute_sql_1():
      # Récupération des requêtes SQL à utiliser afin de produire les fichiers
-     query_list = query_sqlite.get_query(level='1')
-
+     query=query_sqlite.create_table_query()
      # Récupération des paramètres nécessaires à l'execution de execute_sql_queries(query_list, db_file, output_folder, target_year)
-     # puis de insert_into_db(db_path, files_path)
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
-     
-     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_files["path"], args.annee)
-
-     route_sqlite.insert_into_db(param_db['path'], param_files['path']) 
+     route_sqlite.create_table(query, param_db["path"], args.annee)
 
 
-def execute_sql_2():
-     query_list = query_sqlite.get_query(level='2')
+
+def execute_sql():
+      # Récupération des requêtes SQL à utiliser afin de produire les fichiers
+     querylist=query_sqlite.create_table_query()
+     # Récupération des paramètres nécessaires à l'execution de execute_sql_queries(query_list, db_file, output_folder, target_year)
+     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+     for query in querylist:
+          route_sqlite.create_table(query, param_db["path"], args.annee)
+     query_list = query_sqlite.get_query(args.annee)
      #print("query_list from main.py :", query_list)
-
      param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
-
+     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output")
      route_sqlite.execute_sql_queries(query_list, param_db["path"], param_files["path"], args.annee)
 
-     route_sqlite.insert_into_db(param_db['path'], param_files['path'])
+     
 
 
 def clean_output():
@@ -144,12 +146,14 @@ def delete_all():
      utils.delete_tables(param_db["path"])
 
 
-def all_functions():
+def all_functions(annee):
      init_db()
-     create_clean_csv()
-     create_table_and_insert_into()
+     create_clean_csv(annee)
+     insert_into()
+     #create_table_and_insert_into(annee)
      execute_sql()
      #clean_output()
+     delete_db()
      return
 
 
