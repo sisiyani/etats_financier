@@ -1,165 +1,182 @@
 # -*- coding: utf-8 -*-
 
 # MODULES
-import argparse
-import pandas as pd
-import sqlite3
+import json
+import logging
 import os
+import pandas as pd
+import re
+import sqlite3
 
-from modules import route_sqlite, route_datacleaning
-from modules.route_sqlite import query_sqlite
-from utils import utils
-from os import listdir
-
-
-# COMMANDES
-def __main__(args):
-     if args.commande == "init_database":
-          init_db()
-     elif args.commande == "create_csv":
-          create_clean_csv()
-     elif args.commande == "load_to_db":
-          insert_into()
-     elif args.commande == "execute_sql":
-          if args.annee is None:
-               print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
-          else:
-               execute_sql_1()
-               execute_sql_2()
-     elif args.commande == "clean_output":
-          clean_output()
-     elif args.commande == "delete_files":
-          delete_files()
-     elif args.commande == "delete_tables":
-          delete_db()
-     elif args.commande == "delete_all":
-          delete_all()
-     elif args.commande == "all":
-          if args.annee is None:
-               print("MERCI DE RENSEIGNER L'ANNEE SOUHAITEE")
-          else:
-               all_functions()
-     elif args.commande == "test":
-          print("test")
-     return
+from unidecode import unidecode
 
 
-def init_db():
-     print("###############")
-     print("### INIT_DB ###")
-     print("###############")
-     print(" ")
+def read_settings(path_in, dict, elem):
+     """
+     Permet de lire le document settings et retourne les informations souhaitées au format dictionnaire
 
-     print("--- RECUPERATION DES PARAMETRES ---")
-     param_config = utils.read_settings("settings/settings.json", dict = "sqlite_db", elem = "LOCAL SERVER")
-     print(" --- PARAM_CONFIG : ", param_config, " ---")
-     print(" ")
+     Paramètres : 
+        - path_in : Chemin du dossier settings où sont stockées les informations.
+        - dict : Dictionnaire contenant les informations que l'on recherche.
+        - elem : Elément au sein du dictionnaire dont on souhaite retourner les informations.
+     """
+     with open(path_in) as f:
+          dict_ret = json.load(f)
+     L_ret = dict_ret[dict]
+     param_config = {}
+     for param in L_ret:
+          if param["name"] == elem:
+               param_config = param.copy()
+     logging.info("Lecture param config " + path_in + ".")
+     return param_config 
 
-     print(" --- DEPLOIEMENT DE LA BDD ---")
-     route_sqlite.deploy_database(database = param_config["database"])
-     print(" ")
-     return
+
+def checkIfPathExists(file):
+     """
+     Permet de vérifier le fichier 
+
+     Paramètre :
+        - file : Fichier à vérifier
+     """
+     if os.path.exists(file):
+          os.remove(file)
+          print("Ancier fichier", file, "écrasé")
 
 
-def create_clean_csv():
-     # Récupération des paramètres nécessaires depuis le fichier settings.json
-     param_input = utils.read_settings("settings/settings.json", dict = "path_data", elem = "input")
-     param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
+def convertXLSXtoCSV(inputExcelFilePath, outputCsvFilePath):
+     """
+     Permet de convertir les fichiers XLSX en fichier Excel
+
+     Paramètres :
+        - inputExcelFIlePath = Chemin du dossier où sont enregistrés les fichiers Excel 
+        - outputCsvFilePath = Chemin du dossier où enregistrer les fichiers convertis en CSV
+     """
+     try:
+          excelFile = pd.read_excel(inputExcelFilePath, header = 0, engine = 'openpyxl')
+          checkIfPathExists(outputCsvFilePath)
+
+          excelFile.to_csv(outputCsvFilePath, index = None, header = True, sep = ";", encoding = 'utf-8-sig')
+          return outputCsvFilePath
      
-     # Création des fichiers csv à partir des fichiers sources 
-     route_datacleaning.create_csv(param_input["path"], param_to_csv["path"])
-     # Uniformisation des données des fichiers csv
-     route_datacleaning.cleanData(param_to_csv["path"])
-     
-     return
+     except ValueError as err:
+          print(err)
+          return str(err)
 
 
-def insert_into(): 
-     # Récupération des paramètres nécessaires depuis le fichier settings.json
-     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
-     
-     route_sqlite.insert_into_db(param_db['path'], param_files['path'])
+def cleanTitle(filename):
+     """
+     Permet d'uniformiser le nom d'un fichier.
 
+     Paramètre :
+        - filename : Nom du fichier à uniformiser.
+     """
+     filename = unidecode(filename.upper(), 'utf-8')
 
-def execute_sql_1():
-     # Récupération des requêtes SQL à utiliser afin de produire les fichiers
-     query_list = query_sqlite.get_query(level='1')
+     chars_to_replace = [',', ' ', ';', '-', ","]
 
-     # Récupération des paramètres nécessaires à l'execution de execute_sql_queries(query_list, db_file, output_folder, target_year)
-     # puis de insert_into_db(db_path, files_path)
-     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
-     
-     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_files["path"], args.annee)
-
-     route_sqlite.insert_into_db(param_db['path'], param_files['path']) 
-
-
-def execute_sql_2():
-     query_list = query_sqlite.get_query(level='2')
-     #print("query_list from main.py :", query_list)
-
-     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
-     param_files = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
-
-     route_sqlite.execute_sql_queries(query_list, param_db["path"], param_files["path"], args.annee)
-
-     route_sqlite.insert_into_db(param_db['path'], param_files['path'])
-
-
-def clean_output():
-     param_output_1 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
-     param_output_2 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
-
-     route_datacleaning.uniformiser_csv_dossier(param_output_1["path"])
-     route_datacleaning.uniformiser_csv_dossier(param_output_2["path"])
-
-
-def delete_files():
-     param_output_1 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
-     param_output_2 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
-     param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
-
-     utils.delete_files(param_output_1["path"])
-     utils.delete_files(param_output_2["path"])
-     utils.delete_files(param_to_csv["path"])
-
-
-def delete_db():
-     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+     for c in chars_to_replace:
+          filename = filename.replace(c, '_')
  
-     utils.delete_tables(param_db["path"])
+     return filename
 
 
-def delete_all():
-     param_output_1 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_1")
-     param_output_2 = utils.read_settings("settings/settings.json", dict = "path_data", elem = "output_2")
-     param_to_csv = utils.read_settings("settings/settings.json", dict = "path_data", elem = "to_csv")
-     param_db = utils.read_settings("settings/settings.json", dict = "db", elem = "etats_financier.db")
+def cleanTxt(text):
+     """
+     Uniformise les colonnes d'un fichier.
+     
+     Paramètre : 
+        - text : Texte à uniformiser.
+     """
+     print("Text-----", text)
+     text=text.rstrip()
+     if text == 'Mnt_Realise_Rembourse':
+          text='Mnt_Realise'
+     try:
+          text = unidecode(text.lower(), 'utf-8')
+     except (TypeError, NameError):
+               pass
 
-     utils.delete_files(param_output_1["path"])
-     utils.delete_files(param_output_2["path"])
-     utils.delete_files(param_to_csv["path"])
-     utils.delete_tables(param_db["path"])
+     text = unidecode(text.upper())
+     text = text.encode('ascii', 'ignore')
+     text = text.decode('utf-8')
+     text = text.replace(",","")
+     text = text.replace(" - ", "_")
+     text = text.replace(" -", "_")
+     text = text.replace("- ","_")
+     text = text.replace("-","_")
+     text = text.replace(" ", "_")
+     text = text.replace("'", "_")
+     text = text.replace("/", "_")
+     text = text.replace("(", "_").replace(")", "")
+     text = text.replace("%", "POURCENT")
+
+     text = text.replace("__", "_")
+     text = text.replace("___", "_")
+
+     text = re.sub('\[] +', '_', text)
+     text = re.sub('\[^0-9a-zA-Z_-]', '',text) 
+     return str(text)
 
 
-def all_functions():
-     init_db()
-     create_clean_csv()
-     create_table_and_insert_into()
-     execute_sql()
-     #clean_output()
-     return
+def cleanSrcData(df):
+     """
+     Permet d'enlever les caractères spéciaux, accents, espace (_)
+     
+     Paramètre :
+        - df : Dataframe à uniformiser
+     """
+     
+     df.columns = [cleanTxt(i) for i in df.columns.values.tolist()]
+     return df
 
 
-# Initialisation du parsing
-parser = argparse.ArgumentParser()
-parser.add_argument("commande", type = str, help = "Commande à exécuter")
-parser.add_argument("--annee", type = int, default=None, help = "Année à générer")
-args = parser.parse_args()
+def compter_valeurs(var):
+     """  
+     Compte le nombre de valeurs dans une variable.
+        - param var : La variable à compter.
+        - return : Le nombre de valeurs dans la variable.
+     """  
+     if isinstance(var, (list, tuple, set)):
+          return len(var)
+     elif isinstance(var, dict):
+          return len(var.values())
+     elif isinstance(var, str):
+          return len(var.split())
+     else:
+          return 1
 
 
-# Core
-if __name__ == "__main__":
-     __main__(args)
+def delete_files(path):
+     """
+     Supprime les fichiers au sein du dossier sélectionné (sauf fichier de démo).
+
+     Paramètre :
+        - path : Chemin du dossier où supprimer les fichiers.
+     """
+     for filename in os.listdir(path):
+          if not filename.startswith('demo'):
+               os.remove(os.path.join(path, filename))
+               print('Fichier supprimé :', filename)
+
+
+def delete_tables(database_path):
+     """
+     Supprime les tables au sein de la base de données sélectionnée.
+
+     Paramètre :
+        - database_path : Chemin de la base de données où supprimer les tables.
+     """
+     conn = sqlite3.connect(database_path)
+     cursor = conn.cursor()
+
+     # Récupère le nom des tables de la bdd
+     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+     tables = cursor.fetchall()
+
+     # Supprime chaque table de la bdd
+     for table in tables:
+          cursor.execute(f"DROP TABLE {table[0]};")
+          print("Table supprimée :", table)
+
+     conn.commit()
+     conn.close()
